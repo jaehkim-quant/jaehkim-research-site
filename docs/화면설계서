@@ -1,0 +1,268 @@
+1) Project: Quant Research & Family Office CEO Personal Site
+Goal: 전문성과 신뢰를 기반으로 (1) 구독 전환 (2) 협업/자문 리드 확보 (3) 광고/콘텐츠 수익 파이프라인 구축
+Primary Audience: 개인투자자 / 동료 리서처 / X(트위터) 구독자
+Primary Actions (CTA):
+
+CTA1: “리서치 보기”
+
+CTA2: “협업/자문 문의”
+Trust Principles: 재현성(방법론 공개), 검증(Out-of-sample/워크포워드), 리스크 중심(MDD/턴오버 등), 이해상충/윤리 고지
+Tone: 프로페셔널, 데이터 기반, 군더더기 없이 깔끔한 레이아웃
+Non-goals: 과장된 수익률 마케팅, 시그널/추천 중심 판매 페이지
+
+2) IA (Information Architecture) — 메뉴 구조
+
+Top Nav:
+
+Home
+
+Research Library
+
+Methodology (Validation)
+
+Performance Dashboard
+
+Case Studies
+
+Subscribe / Work With Me
+
+About + Ethics + Contact
+
+Footer: 개인정보/쿠키, 면책/리스크 고지, 소셜 링크(X, GitHub, Substack 등), 이메일
+
+3) 페이지별 요구사항 (AI가 구현할 체크리스트)
+Home
+
+Hero: 한 줄 가치제안 + 2문장 설명 + CTA 2개
+
+Social Proof: 숫자/배지 (예: “연구 노트 N개”, “전략 템플릿 N개”, “구독자 N명”) — 값은 placeholder
+
+Featured Research 6개 카드
+
+“검증 원칙” 4개 아이콘 요약 (룩어헤드 방지/비용 가정/워크포워드/리스크 지표)
+
+Latest Posts 5개 + Newsletter 박스
+
+Research Library
+
+필터/태그: 전략/팩터/리스크/마켓구조/크립토/파생/매크로레짐
+
+검색: 제목/태그/요약
+
+카드 필드: 제목, 2~3줄 요약, 난이도(초급/중급/고급), 업데이트 날짜, 태그
+
+글 상세: Summary 탭(3분) / Deep Dive 탭(수식·가정·코드) 분리
+
+Methodology (Validation)
+
+백테스트 원칙 섹션 (룩어헤드/서바이버십/리밸런싱/슬리피지·수수료)
+
+검증 체계 (워크포워드/아웃오브샘플/레짐/스트레스)
+
+성과 지표 표준 (CAGR만 금지, MDD/Sharpe/Sortino/Calmar/턴오버)
+
+“가정(Assumptions)”은 표로 정리
+
+Performance Dashboard
+
+전략별 카드: 목표 → 상태(ON/OFF 레짐) → 성과 요약 → 리스크
+
+실거래/페이퍼 구분 토글
+
+차트(placeholder 데이터로 구현): 누적수익, 드로다운, 월별 수익 분포 등
+
+Case Studies
+
+템플릿 고정: Problem → Approach → Result → Learnings → Next
+
+케이스 3~5개 카드 + 상세 페이지
+
+Subscribe / Work With Me
+
+3단 가격표(Free/Pro/Enterprise) + 기능 비교표
+
+광고는 글 하단 슬롯(레이아웃만)
+
+문의 폼: 목적(투자/협업/강연/채용) + 3개 질문(예산/기간/목표)
+
+About + Ethics + Contact
+
+소개(경력 나열보다 원칙): 투자철학/리스크 철학/작업 방식
+
+Ethics/Conflict/Disclaimer 섹션
+
+Contact: 이메일 + 폼 + 캘린더 링크 자리(실제 연동은 추후)
+
+4) 데이터 모델(콘텐츠가 쌓이게 만드는 핵심)
+
+AI에게 “CMS 친화적 구조로” 만들라고 지시하면 좋아.
+
+Post(Research)
+
+id, title, slug, summary, deepDive, tags[], level, date, updatedAt
+
+assumptions: {dataRange, universe, rebalance, costs, slippage, execution}
+
+metrics: {cagr, mdd, sharpe, sortino, calmar, turnover}
+
+Strategy
+
+id, name, objective, regimeStatus, liveMode(paper/live), metrics, chartsData
+
+CaseStudy
+
+id, title, problem, approach, result, learnings, next
+
+5) 콘텐츠 템플릿(글 쓸 때 매번 뼈대 유지)
+
+Research Post Template
+
+TL;DR (3줄)
+
+언제/왜 유효한가 (레짐/전제)
+
+규칙(알고리즘) 요약
+
+백테스트 설정(표)
+
+결과(성과+리스크)
+
+실패 케이스/한계
+
+운영 체크리스트(실전)
+
+6) 기술 스택 지시(선택지 2개만 주면 AI가 덜 헤맴)
+
+Option A (빠른 콘텐츠/SEO): Next.js + MDX(또는 Contentlayer) + Tailwind + Vercel
+Option B (확장/CMS): Next.js + Headless CMS(예: Sanity/Strapi) + Tailwind
+
+필수: SEO(og tags), sitemap, RSS, 다크모드, 반응형, 성능(Lighthouse 90+ 목표)
+
+
+# 각 페이지 한줄 요약 리서치 랜딩 IA
+1. Hero — 한 줄 가치제안 + CTA(리서치 보기 / 협업 문의)
+
+2. Featured Research (Short Reads) — 요약 카드 6개 + 각 카드에 Summary/Evidence 링크
+
+3. Research Categories — 태그 그리드 + 검색/필터
+
+4. Evidence & Validation (통합 섹션) — Standards + Evidence Pack + Case Proofs (탭/카드)
+
+5. Tools & Templates — 공개 가능한 템플릿/체크리스트/스니펫 모음
+
+6. About & Ethics — 원칙 기반 소개 + 이해상충/면책/리스크 고지
+
+7. Contact — 목적/주제/기간/필요 산출물 중심 문의 폼
+
+# 참고 디자인
+* 참고할 사이트 3개 
+
+1. AQR Capital Management — 퀀트 펀드형 리서치/인사이트 구조(카테고리·아카이브·다운로드) 참고
+
+# 색상·폰트·여백·카드/섹션 스타일 (짧은 가이드)
+1. 색상(신뢰/테크/리서치 톤)
+
+Background: #0B1220 (딥 네이비) 또는 #0F172A
+
+Surface/Card: #111827 (다크) / 라이트 모드는 #FFFFFF + #F8FAFC
+
+Text: #E5E7EB(본문), #F9FAFB(타이틀) / 라이트 모드는 #0F172A
+
+Primary Accent(버튼/링크): #3B82F6(블루) 또는 #22C55E(그린) “하나만”
+
+Muted/Border: #1F2937(경계), #334155(구분선)
+
+2. 폰트(한/영 혼용 기준)
+
+Korean: Pretendard (또는 SUIT)
+
+English/Code 느낌: Inter + (코드 블록은 JetBrains Mono)
+
+타이틀은 SemiBold, 본문은 Regular로 대비
+
+3. 여백/그리드(깔끔함의 80%)
+
+페이지 최대 폭: 1120–1200px
+
+섹션 패딩: 상하 72–96px
+
+카드 내부 패딩: 20–24px
+
+카드 간격(gap): 16–24px
+
+섹션 제목 아래 간격: 16–20px (제목-콘텐츠 리듬 고정)
+
+카드/섹션 스타일(리서치 사이트에 잘 맞는 규칙)
+
+카드: radius 12–16px, 얕은 그림자 또는 1px 보더(과한 그림자 금지)
+
+카드 구성: 제목(1줄) → 요약(2–3줄) → 태그/메타(작게)
+
+링크는 밑줄 대신 색상 + hover underline
+
+섹션은 “배너 느낌”보다 문서/리포트 느낌(타이포 중심, 아이콘 최소)
+
+# 파일구조
+
+app/
+  layout.tsx
+  page.tsx
+  research/
+    page.tsx                     // /research 랜딩
+    loading.tsx                  // (optional)
+    error.tsx                    // (optional)
+
+components/
+  research/
+    ResearchPage.tsx             // /research 조립(섹션 순서/레이아웃)
+    sections/
+      HeroSection.tsx
+      FeaturedResearchSection.tsx
+      ResearchCategoriesSection.tsx
+      EvidenceValidationSection.tsx
+      ToolsTemplatesSection.tsx
+      AboutEthicsSection.tsx
+      ContactSection.tsx
+    blocks/
+      ResearchCard.tsx
+      CategoryTagGrid.tsx
+      SearchBar.tsx
+      FilterChips.tsx
+      EvidenceTabs.tsx            // Standards / Evidence Pack / Case Proofs
+      StandardsGrid.tsx
+      EvidencePackLinks.tsx
+      CaseProofCards.tsx
+      MiniBadgeRow.tsx            // Data/OOS/Costs 뱃지
+      CTAButtons.tsx
+      ContactForm.tsx
+
+lib/
+  research/
+    types.ts                      // Post/CaseStudy/Strategy 타입
+    data/
+      posts.mock.ts               // 더미 데이터(초기)
+      cases.mock.ts
+      tools.mock.ts
+    queries.ts                    // (추후) 필터/검색/정렬 로직
+    mapper.ts                     // 데이터 -> UI 뷰모델 변환(뱃지/메타)
+
+content/                          // (선택) MDX/마크다운 사용 시
+  research/
+    posts/
+      example-1.mdx
+      example-2.mdx
+    evidence/
+      protocol.md                 // Assumptions & Backtest Protocol
+      data-spec.md                // 데이터 스펙
+      experiment-notes.md         // 실험 노트
+
+styles/
+  globals.css
+
+public/
+  research/
+    images/
+    icons/
+
+########################################################################################
+

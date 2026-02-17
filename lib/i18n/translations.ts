@@ -1,0 +1,366 @@
+export type Locale = "en" | "ko";
+
+export const defaultLocale: Locale = "en";
+
+export const translations = {
+  en: {
+    // Site
+    siteName: "JaehKim Research",
+
+    // Nav
+    nav: {
+      home: "Home",
+      research: "Research Library",
+      about: "About",
+      contact: "Contact",
+    },
+
+    // Home
+    home: {
+      heroTitle: "Reproducible Quant Research, Validated Insights",
+      heroDesc:
+        "Block look-ahead and survivorship bias. Deliver trustworthy strategy insights through MDD, turnover, and walk-forward validation.",
+      ctaResearch: "View Research",
+      ctaContact: "Collaboration / Advisory",
+      socialProof: {
+        notes: "Research Notes",
+        templates: "Strategy Templates",
+        subscribers: "Subscribers",
+      },
+      featuredTitle: "Featured Research",
+      featuredDesc: "6 summary cards. Each links to Summary / Evidence.",
+      viewAll: "View All Research →",
+      validationTitle: "Validation Principles",
+      validationDesc: "Reproducibility, verification, risk-focused trust standards",
+      validationBadges: {
+        lookahead: "Look-ahead Prevention",
+        costs: "Cost Assumptions",
+        walkforward: "Walk-forward",
+        risk: "Risk Metrics",
+      },
+      toolsTitle: "Tools & Templates",
+      toolsDesc: "Public templates, checklists, and snippets",
+      latestTitle: "Latest Posts",
+      newsletterTitle: "Newsletter",
+      newsletterDesc: "Receive research summaries and insights via email.",
+      newsletterPlaceholder: "Email address",
+      newsletterButton: "Subscribe",
+    },
+
+    // Research
+    research: {
+      title: "Research Library",
+      desc: "Filter and search research by strategy, factor, risk, market structure, and more.",
+      searchPlaceholder: "Search by title, tags, summary",
+      noResults: "No results found.",
+      loading: "Loading...",
+      backToLibrary: "← Research Library",
+      summaryTab: "Summary (3 min read)",
+      deepDiveTab: "Deep Dive",
+      deepDivePlaceholder:
+        "Equations, assumptions, code. To be expanded with MDX or CMS.",
+    },
+
+    // Evidence (displayed in About page)
+    evidence: {
+      title: "Evidence & Validation",
+      desc: "Backtest and validation principles and performance metric standards.",
+      backtestTitle: "Backtest Principles",
+      backtestItems: {
+        lookahead: {
+          title: "Look-ahead Prevention",
+          desc: "Block future data leakage. Verify separation of signal generation and execution timing.",
+        },
+        survivorship: {
+          title: "Survivorship Bias",
+          desc: "Include delisted products/strategies. Minimize selection bias.",
+        },
+        rebalance: {
+          title: "Rebalancing Assumptions",
+          desc: "Reflect executable rebalancing frequency and costs.",
+        },
+        slippage: {
+          title: "Slippage & Fees",
+          desc: "Conservative assumptions. Include spread and market impact.",
+        },
+      },
+      validationTitle: "Validation Framework",
+      validationItems: [
+        "Walk-forward: Maintain time-series order, rolling OOS",
+        "Out-of-sample: Disclose In-sample / OOS ratio",
+        "Regime & stress: Test across market environments",
+      ],
+      metricsTitle: "Performance Metric Standards",
+      metricsDesc:
+        "CAGR alone is prohibited. Report MDD, Sharpe, Sortino, Calmar, turnover together.",
+      metricsTable: {
+        metric: "Metric",
+        description: "Description",
+        mdd: "MDD",
+        sharpe: "Sharpe",
+        sortino: "Sortino",
+        calmar: "Calmar",
+        turnover: "Turnover",
+        mddDesc: "Max drawdown",
+        sharpeDesc: "Risk-adjusted return",
+        sortinoDesc: "Downside volatility",
+        calmarDesc: "CAGR / MDD",
+        turnoverDesc: "Trading frequency · cost",
+      },
+      assumptionsTitle: "Assumptions Table",
+      assumptionsTable: {
+        item: "Item",
+        default: "Default",
+        dataRange: "Data range",
+        universe: "Universe",
+        rebalance: "Rebalance",
+        costs: "Costs",
+        slippage: "Slippage",
+        execution: "Execution",
+        dataRangeVal: "2000-01 ~ (specified)",
+        universeVal: "KOSPI200 / S&P500 etc.",
+        rebalanceVal: "Monthly / weekly etc.",
+        costsVal: "0.1% round-trip conservative",
+        slippageVal: "Include market impact",
+        executionVal: "EOD close / VWAP etc.",
+      },
+    },
+
+    // About
+    about: {
+      title: "About",
+      introTitle: "Introduction",
+      introDesc:
+        "Principles over credentials. Sharing investment philosophy, risk philosophy, and working style.",
+      introItems: [
+        "Reproducible methodology, disclosed assumptions",
+        "Out-of-sample · walk-forward validation mandatory",
+        "Report MDD, turnover and other risk metrics together",
+        "Proactive conflict of interest · ethics disclosure",
+      ],
+      ethicsTitle: "Ethics / Conflict / Disclaimer",
+      ethicsItems: [
+        "Research and insights on this site are not investment advice. For personal learning and research. Investment decisions are your responsibility.",
+        "Conflict of interest: Collaboration, advisory, or ad revenue may exist. Disclosed for relevant content.",
+        "Past performance does not guarantee future returns. Mind risk management.",
+      ],
+      contactLink: "Inquiries at",
+      contactPage: "Contact",
+      contactPageLink: "page.",
+    },
+
+    // Contact
+    contact: {
+      title: "Contact",
+      desc: "Have a question or want to collaborate? Fill out the form below and I'll get back to you.",
+      successTitle: "Message Sent",
+      successDesc: "Thank you for reaching out. I'll respond as soon as possible.",
+      sendAnother: "Send another message",
+      errorGeneric: "Something went wrong. Please try again.",
+      form: {
+        purpose: "Purpose",
+        purposePlaceholder: "Select",
+        purposeOptions: {
+          general: "General inquiry",
+          collaboration: "Collaboration",
+          speaking: "Speaking",
+        },
+        name: "Name",
+        namePlaceholder: "Your name",
+        email: "Email",
+        emailPlaceholder: "your@email.com",
+        subject: "Subject",
+        subjectPlaceholder: "Inquiry subject",
+        message: "Message",
+        messagePlaceholder: "Include deliverables, timeline if possible.",
+        submit: "Send",
+        sending: "Sending...",
+      },
+    },
+
+    // Levels
+    levels: {
+      beginner: "Beginner",
+      intermediate: "Intermediate",
+      advanced: "Advanced",
+    },
+
+    // Common
+    common: {
+      updated: "Updated",
+      readMore: "Read More",
+    },
+  },
+
+  ko: {
+    siteName: "재킴 리서치",
+    nav: {
+      home: "Home",
+      research: "Research Library",
+      about: "About",
+      contact: "Contact",
+    },
+    home: {
+      heroTitle: "재현 가능한 퀀트 리서치, 검증된 인사이트",
+      heroDesc:
+        "룩어헤드·서바이버십 바이어스를 차단하고, MDD·턴오버·워크포워드 검증을 통해 신뢰할 수 있는 전략 인사이트를 제공합니다.",
+      ctaResearch: "리서치 보기",
+      ctaContact: "협업/자문 문의",
+      socialProof: {
+        notes: "연구 노트",
+        templates: "전략 템플릿",
+        subscribers: "구독자",
+      },
+      featuredTitle: "Featured Research",
+      featuredDesc: "요약 카드 6개. 각 카드에서 Summary / Evidence로 바로 이동할 수 있습니다.",
+      viewAll: "전체 리서치 보기 →",
+      validationTitle: "검증 원칙",
+      validationDesc: "재현성·검증·리스크 중심의 신뢰 기준",
+      validationBadges: {
+        lookahead: "룩어헤드 방지",
+        costs: "비용 가정",
+        walkforward: "워크포워드",
+        risk: "리스크 지표",
+      },
+      toolsTitle: "Tools & Templates",
+      toolsDesc: "공개 가능한 템플릿·체크리스트·스니펫 모음",
+      latestTitle: "Latest Posts",
+      newsletterTitle: "Newsletter",
+      newsletterDesc: "리서치 요약과 인사이트를 메일로 받아보세요.",
+      newsletterPlaceholder: "이메일 주소",
+      newsletterButton: "구독하기",
+    },
+    research: {
+      title: "Research Library",
+      desc: "전략·팩터·리스크·마켓구조 등 리서치를 필터하고 검색할 수 있습니다.",
+      searchPlaceholder: "제목, 태그, 요약으로 검색",
+      noResults: "검색 결과가 없습니다.",
+      loading: "로딩 중...",
+      backToLibrary: "← Research Library",
+      summaryTab: "Summary (3분 읽기)",
+      deepDiveTab: "Deep Dive",
+      deepDivePlaceholder:
+        "수식·가정·코드 등 상세 내용은 추후 MDX 또는 CMS로 확장 예정입니다.",
+    },
+    evidence: {
+      title: "Evidence & Validation",
+      desc: "백테스트·검증 원칙과 성과 지표 표준을 공개합니다.",
+      backtestTitle: "백테스트 원칙",
+      backtestItems: {
+        lookahead: {
+          title: "룩어헤드 방지",
+          desc: "미래 정보 유입을 차단. 시그널 생성 시점과 실행 시점 분리 검증.",
+        },
+        survivorship: {
+          title: "서바이버십 바이어스",
+          desc: "폐지된 상품·전략을 포함. 선택 바이어스 최소화.",
+        },
+        rebalance: {
+          title: "리밸런싱 가정",
+          desc: "실제 실행 가능한 리밸런싱 주기와 비용 반영.",
+        },
+        slippage: {
+          title: "슬리피지·수수료",
+          desc: "보수적 가정. 스프레드·마켓 임팩트 포함.",
+        },
+      },
+      validationTitle: "검증 체계",
+      validationItems: [
+        "워크포워드: 시계열 순서 유지, 롤링 OOS",
+        "아웃오브샘플: In-sample / OOS 비율 명시",
+        "레짐·스트레스: 다양한 시장 환경에서 테스트",
+      ],
+      metricsTitle: "성과 지표 표준",
+      metricsDesc:
+        "CAGR만 단독 사용 금지. MDD, Sharpe, Sortino, Calmar, 턴오버를 함께 보고합니다.",
+      metricsTable: {
+        metric: "지표",
+        description: "설명",
+        mdd: "MDD",
+        sharpe: "Sharpe",
+        sortino: "Sortino",
+        calmar: "Calmar",
+        turnover: "턴오버",
+        mddDesc: "최대 낙폭",
+        sharpeDesc: "위험 조정 수익",
+        sortinoDesc: "하방 변동성 기반",
+        calmarDesc: "CAGR / MDD",
+        turnoverDesc: "거래 빈도·비용",
+      },
+      assumptionsTitle: "가정(Assumptions) 표",
+      assumptionsTable: {
+        item: "항목",
+        default: "기본값",
+        dataRange: "데이터 범위",
+        universe: "유니버스",
+        rebalance: "리밸런싱",
+        costs: "비용",
+        slippage: "슬리피지",
+        execution: "실행",
+        dataRangeVal: "2000-01 ~ (명시)",
+        universeVal: "KOSPI200 / S&P500 등 명시",
+        rebalanceVal: "월말 / 주간 등 명시",
+        costsVal: "0.1% round-trip 등 보수적",
+        slippageVal: "시장 임팩트 포함",
+        executionVal: "일중 종가 / VWAP 등",
+      },
+    },
+    about: {
+      title: "About",
+      introTitle: "소개",
+      introDesc:
+        "경력 나열보다 원칙을 중시합니다. 투자 철학, 리스크 철학, 작업 방식을 공유합니다.",
+      introItems: [
+        "재현 가능한 방법론, 공개된 가정",
+        "아웃오브샘플·워크포워드 검증 의무화",
+        "MDD·턴오버 등 리스크 지표 함께 보고",
+        "이해상충·윤리 고지 선제 공개",
+      ],
+      ethicsTitle: "Ethics / Conflict / Disclaimer",
+      ethicsItems: [
+        "본 사이트의 리서치와 인사이트는 투자 권유가 아닙니다. 개인적인 학습·연구 목적이며, 실제 투자 결정은 본인 책임입니다.",
+        "이해상충: 협업·자문·광고 수익이 있을 수 있으며, 해당 콘텐츠에는 고지합니다.",
+        "과거 수익률이 미래 수익을 보장하지 않습니다. 리스크 관리에 유의해 주세요.",
+      ],
+      contactLink: "문의는",
+      contactPage: "Contact",
+      contactPageLink: "페이지에서 받고 있습니다.",
+    },
+    contact: {
+      title: "Contact",
+      desc: "궁금한 점이나 협업 제안이 있으시면 아래 양식을 작성해 주세요.",
+      successTitle: "메시지가 전송되었습니다",
+      successDesc: "문의해 주셔서 감사합니다. 빠른 시일 내에 답변드리겠습니다.",
+      sendAnother: "다른 메시지 보내기",
+      errorGeneric: "오류가 발생했습니다. 다시 시도해 주세요.",
+      form: {
+        purpose: "목적",
+        purposePlaceholder: "선택",
+        purposeOptions: {
+          general: "일반 문의",
+          collaboration: "협업",
+          speaking: "강연",
+        },
+        name: "이름",
+        namePlaceholder: "성함을 입력해 주세요",
+        email: "이메일",
+        emailPlaceholder: "your@email.com",
+        subject: "주제",
+        subjectPlaceholder: "문의 주제",
+        message: "메시지",
+        messagePlaceholder: "필요 산출물, 기간 등을 함께 적어주시면 좋습니다.",
+        submit: "보내기",
+        sending: "전송 중...",
+      },
+    },
+    levels: {
+      beginner: "초급",
+      intermediate: "중급",
+      advanced: "고급",
+    },
+    common: {
+      updated: "업데이트",
+      readMore: "자세히 보기",
+    },
+  },
+} as const;

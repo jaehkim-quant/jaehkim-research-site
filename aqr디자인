@@ -1,0 +1,9 @@
+“Deep navy + crisp white” 대비 — bg-slate-950/900, text-slate-50, 라이트면 bg-white text-slate-900
+
+타이포 중심의 기관 리서치 톤 — font-sans tracking-tight, 헤드라인 text-4xl/5xl font-semibold, 본문 text-base leading-7
+
+여백 크게, 섹션 리듬 고정 — max-w-6xl mx-auto px-6, 섹션 py-16 md:py-24, 카드 간격 gap-6
+
+미니멀한 카드/리스트 기반 “Featured Insights” — border border-slate-200/10, rounded-xl, hover:bg-white/5, 제목+요약+“Read More” 링크 패턴
+
+절제된 링크/액센트 1색만 — 링크 text-blue-400 hover:underline 처럼 “한 가지” 포인트 컬러만 유지(버튼도 동일 톤)
