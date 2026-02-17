@@ -32,12 +32,34 @@ export interface Post {
   date: string;
   updatedAt?: string;
   published?: boolean;
+  viewCount?: number;
+  likeCount?: number;
+  commentCount?: number;
   assumptions?: Assumptions;
   metrics?: Metrics;
+  /** Series */
+  seriesId?: string | null;
+  seriesOrder?: number | null;
   /** English content for locale "en" */
   titleEn?: string;
   summaryEn?: string;
   tagsEn?: string[];
+}
+
+export interface Series {
+  id: string;
+  title: string;
+  titleEn?: string;
+  slug: string;
+  description?: string;
+  descriptionEn?: string;
+  type: string;
+  level: string;
+  published?: boolean;
+  createdAt: string;
+  updatedAt: string;
+  postCount?: number;
+  posts?: Post[];
 }
 
 // Strategy

@@ -47,6 +47,16 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               New Post
             </Link>
             <Link
+              href="/admin/series"
+              className={`text-sm font-medium ${
+                pathname?.startsWith("/admin/series")
+                  ? "text-orange-600"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Series
+            </Link>
+            <Link
               href="/admin/inquiries"
               className={`text-sm font-medium ${
                 pathname === "/admin/inquiries"

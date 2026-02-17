@@ -5,11 +5,11 @@ import { useTranslation } from "@/lib/i18n/useTranslation";
 import { getPostTitle, getPostSummary, getPostTags } from "@/lib/research/postLocale";
 import type { Post } from "@/lib/research/types";
 
-const levelKeyMap = {
+const levelKeyMap: Record<string, string> = {
   초급: "beginner",
   중급: "intermediate",
   고급: "advanced",
-} as const;
+};
 
 interface ResearchCardProps {
   post: Post;
@@ -34,7 +34,7 @@ export function ResearchCard({ post, variant = "default" }: ResearchCardProps) {
       <p className="text-sm text-slate-600 line-clamp-2 mb-3">
         {summary}
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-3">
         <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
           {t(`levels.${levelKey}`)}
         </span>
@@ -47,11 +47,22 @@ export function ResearchCard({ post, variant = "default" }: ResearchCardProps) {
           </span>
         ))}
       </div>
-      {variant === "default" && post.updatedAt && (
-        <p className="text-xs text-slate-500 mt-2">
-          {t("common.updated")}: {post.updatedAt}
-        </p>
-      )}
+      <div className="flex items-center justify-between text-xs text-slate-500">
+        <div className="flex items-center gap-3">
+          {(post.viewCount ?? 0) > 0 && (
+            <span>{post.viewCount} {t("research.views")}</span>
+          )}
+          {(post.likeCount ?? 0) > 0 && (
+            <span>♥ {post.likeCount}</span>
+          )}
+          {(post.commentCount ?? 0) > 0 && (
+            <span>{post.commentCount} {t("research.comments")}</span>
+          )}
+        </div>
+        {variant === "default" && post.updatedAt && (
+          <span>{t("common.updated")}: {typeof post.updatedAt === "string" && post.updatedAt.includes("T") ? new Date(post.updatedAt).toLocaleDateString() : post.updatedAt}</span>
+        )}
+      </div>
     </Link>
   );
 }

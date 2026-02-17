@@ -8,6 +8,8 @@ import { useTranslation } from "@/lib/i18n/useTranslation";
 const navKeys = [
   { href: "/", key: "home" },
   { href: "/research", key: "research" },
+  { href: "/knowledge-base", key: "knowledgeBase" },
+  { href: "/book-notes", key: "bookNotes" },
   { href: "/about", key: "about" },
   { href: "/contact", key: "contact" },
 ];

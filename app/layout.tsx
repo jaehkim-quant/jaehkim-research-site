@@ -3,14 +3,62 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/useTranslation";
 import { LayoutShell } from "@/components/LayoutShell";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jaehkim-research.vercel.app";
+
 export const metadata: Metadata = {
-  title: "JaehKim Research",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "JaehKim Research — Quant Research & Investment Insights",
+    template: "%s | JaehKim Research",
+  },
   description:
     "Reproducible, verified, risk-focused quant research. Data-driven insights for individual investors and fellow researchers.",
+  keywords: [
+    "quant research",
+    "quantitative finance",
+    "factor investing",
+    "backtesting",
+    "risk management",
+    "investment research",
+    "portfolio optimization",
+    "퀀트",
+    "투자 리서치",
+    "팩터 투자",
+  ],
+  authors: [{ name: "JaehKim" }],
+  creator: "JaehKim",
   openGraph: {
-    title: "JaehKim Research",
+    type: "website",
+    locale: "en_US",
+    alternateLocale: "ko_KR",
+    siteName: "JaehKim Research",
+    title: "JaehKim Research — Quant Research & Investment Insights",
     description:
       "Reproducible, verified, risk-focused quant research. Data-driven insights for individual investors and fellow researchers.",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JaehKim Research",
+    description:
+      "Reproducible, verified, risk-focused quant research.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
+  verification: {
+    google: "4UxoVOLA8TFgpiYbTzlynU_s9vtacrTe_qglcJQQErM",
   },
 };
 

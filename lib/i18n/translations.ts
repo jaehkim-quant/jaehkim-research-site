@@ -11,6 +11,8 @@ export const translations = {
     nav: {
       home: "Home",
       research: "Research Library",
+      knowledgeBase: "Knowledge Base",
+      bookNotes: "Book Notes",
       about: "About",
       contact: "Contact",
     },
@@ -55,10 +57,48 @@ export const translations = {
       noResults: "No results found.",
       loading: "Loading...",
       backToLibrary: "← Research Library",
-      summaryTab: "Summary (3 min read)",
+      summaryTab: "Summary",
       deepDiveTab: "Deep Dive",
       deepDivePlaceholder:
         "Equations, assumptions, code. To be expanded with MDX or CMS.",
+      // View modes
+      viewCard: "Cards",
+      viewList: "List",
+      viewTimeline: "Timeline",
+      // Sort
+      sortNewest: "Newest",
+      sortOldest: "Oldest",
+      sortPopular: "Most Viewed",
+      sortLevel: "By Level",
+      // Level tabs
+      levelAll: "All",
+      // Pagination
+      page: "Page",
+      // Stats
+      views: "views",
+      likes: "likes",
+      comments: "comments",
+      minRead: "min read",
+      // Share
+      share: "Share",
+      copyLink: "Copy Link",
+      copied: "Copied!",
+      // Comments
+      commentName: "Name",
+      commentNamePlaceholder: "Your name",
+      commentContent: "Comment",
+      commentContentPlaceholder: "Leave a comment...",
+      commentSubmit: "Post Comment",
+      commentSubmitting: "Posting...",
+      commentEmpty: "No comments yet. Be the first!",
+      commentDelete: "Delete",
+      reply: "Reply",
+      replyPlaceholder: "Write a reply...",
+      cancel: "Cancel",
+      // Navigation
+      prevPost: "Previous",
+      nextPost: "Next",
+      relatedPosts: "Related Posts",
     },
 
     // Evidence (displayed in About page)
@@ -178,6 +218,30 @@ export const translations = {
       },
     },
 
+    // Knowledge Base
+    kb: {
+      title: "Knowledge Base",
+      desc: "Curated series of posts on university subjects, textbooks, and foundational topics.",
+      noSeries: "No series yet. Check back soon!",
+      posts: "posts",
+      chapters: "chapters",
+      viewSeries: "View Series",
+      backTo: "← Knowledge Base",
+      chapter: "Ch.",
+    },
+
+    // Book Notes
+    bn: {
+      title: "Book Notes",
+      desc: "Key takeaways and personal notes from books I've read.",
+      noSeries: "No book notes yet. Check back soon!",
+      posts: "notes",
+      chapters: "notes",
+      viewSeries: "Read Notes",
+      backTo: "← Book Notes",
+      chapter: "Note ",
+    },
+
     // Levels
     levels: {
       beginner: "Beginner",
@@ -197,6 +261,8 @@ export const translations = {
     nav: {
       home: "Home",
       research: "Research Library",
+      knowledgeBase: "Knowledge Base",
+      bookNotes: "Book Notes",
       about: "About",
       contact: "Contact",
     },
@@ -237,10 +303,40 @@ export const translations = {
       noResults: "검색 결과가 없습니다.",
       loading: "로딩 중...",
       backToLibrary: "← Research Library",
-      summaryTab: "Summary (3분 읽기)",
+      summaryTab: "Summary",
       deepDiveTab: "Deep Dive",
       deepDivePlaceholder:
         "수식·가정·코드 등 상세 내용은 추후 MDX 또는 CMS로 확장 예정입니다.",
+      viewCard: "카드",
+      viewList: "리스트",
+      viewTimeline: "타임라인",
+      sortNewest: "최신순",
+      sortOldest: "오래된순",
+      sortPopular: "조회순",
+      sortLevel: "난이도순",
+      levelAll: "전체",
+      page: "페이지",
+      views: "조회",
+      likes: "좋아요",
+      comments: "댓글",
+      minRead: "분 읽기",
+      share: "공유",
+      copyLink: "링크 복사",
+      copied: "복사됨!",
+      commentName: "이름",
+      commentNamePlaceholder: "이름을 입력하세요",
+      commentContent: "댓글",
+      commentContentPlaceholder: "댓글을 남겨주세요...",
+      commentSubmit: "댓글 작성",
+      commentSubmitting: "작성 중...",
+      commentEmpty: "아직 댓글이 없습니다. 첫 댓글을 남겨보세요!",
+      commentDelete: "삭제",
+      reply: "답글",
+      replyPlaceholder: "답글을 작성하세요...",
+      cancel: "취소",
+      prevPost: "이전 글",
+      nextPost: "다음 글",
+      relatedPosts: "관련 글",
     },
     evidence: {
       title: "Evidence & Validation",
@@ -352,6 +448,26 @@ export const translations = {
         submit: "보내기",
         sending: "전송 중...",
       },
+    },
+    kb: {
+      title: "Knowledge Base",
+      desc: "대학 전공과목, 교과서, 기초 주제에 대한 시리즈 모음입니다.",
+      noSeries: "아직 시리즈가 없습니다. 곧 업데이트 예정입니다!",
+      posts: "개 글",
+      chapters: "챕터",
+      viewSeries: "시리즈 보기",
+      backTo: "← Knowledge Base",
+      chapter: "Ch.",
+    },
+    bn: {
+      title: "Book Notes",
+      desc: "읽은 책에서 얻은 핵심 내용과 개인 메모를 정리합니다.",
+      noSeries: "아직 독서 노트가 없습니다. 곧 업데이트 예정입니다!",
+      posts: "개 노트",
+      chapters: "노트",
+      viewSeries: "노트 보기",
+      backTo: "← Book Notes",
+      chapter: "Note ",
     },
     levels: {
       beginner: "초급",

@@ -45,6 +45,8 @@ export async function PUT(
         level: body.level ?? undefined,
         published: body.published ?? undefined,
         date: body.date ? new Date(body.date) : undefined,
+        seriesId: body.seriesId !== undefined ? (body.seriesId || null) : undefined,
+        seriesOrder: body.seriesOrder !== undefined ? (body.seriesOrder != null ? Number(body.seriesOrder) : null) : undefined,
       },
     });
 

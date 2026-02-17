@@ -9,21 +9,64 @@ datasource db {
 }
 
 model Post {
+  id          String   @id @default(cuid())
+  title       String
+  titleEn     String?
+  slug        String   @unique
+  summary     String
+  summaryEn   String?
+  content     String?  @db.Text
+  contentEn   String?  @db.Text
+  tags        String[]
+  tagsEn      String[]
+  level       String   @default("중급")
+  published   Boolean  @default(false)
+  viewCount   Int      @default(0)
+  seriesId    String?
+  seriesOrder Int?
+  date        DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  series      Series?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  likes       PostLike[]
+  comments    Comment[]
+}
+
+model Series {
+  id            String   @id @default(cuid())
+  title         String
+  titleEn       String?
+  slug          String   @unique
+  description   String?  @db.Text
+  descriptionEn String?  @db.Text
+  type          String   @default("knowledge-base")
+  level         String   @default("중급")
+  published     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  posts         Post[]
+}
+
+model PostLike {
   id        String   @id @default(cuid())
-  title     String
-  titleEn   String?
-  slug      String   @unique
-  summary   String
-  summaryEn String?
-  content   String?  @db.Text
-  contentEn String?  @db.Text
-  tags      String[]
-  tagsEn    String[]
-  level     String   @default("중급")
-  published Boolean  @default(false)
-  date      DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  postId    String
+  ip        String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@unique([postId, ip])
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  postId    String
+  parentId  String?
+  name      String
+  content   String    @db.Text
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  createdAt DateTime  @default(now())
 }
 
 model OtpCode {

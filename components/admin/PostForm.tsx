@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RichEditor } from "./RichEditor";
 
@@ -18,6 +18,14 @@ interface PostData {
   level: string;
   published: boolean;
   date: string;
+  seriesId: string;
+  seriesOrder: string;
+}
+
+interface SeriesOption {
+  id: string;
+  title: string;
+  titleEn?: string;
 }
 
 interface PostFormProps {
@@ -30,6 +38,14 @@ export function PostForm({ initialData, mode }: PostFormProps) {
   const [activeTab, setActiveTab] = useState<"ko" | "en">("ko");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [seriesOptions, setSeriesOptions] = useState<SeriesOption[]>([]);
+
+  useEffect(() => {
+    fetch("/api/series?all=true")
+      .then((res) => res.json())
+      .then((data) => setSeriesOptions(data))
+      .catch(() => {});
+  }, []);
 
   const [form, setForm] = useState<PostData>({
     title: initialData?.title || "",
@@ -44,6 +60,8 @@ export function PostForm({ initialData, mode }: PostFormProps) {
     level: initialData?.level || "중급",
     published: initialData?.published ?? false,
     date: initialData?.date || new Date().toISOString().split("T")[0],
+    seriesId: initialData?.seriesId || "",
+    seriesOrder: initialData?.seriesOrder || "",
   });
 
   const [tagsInput, setTagsInput] = useState(form.tags.join(", "));
@@ -87,6 +105,8 @@ export function PostForm({ initialData, mode }: PostFormProps) {
       tags,
       tagsEn,
       published: publish,
+      seriesId: form.seriesId || null,
+      seriesOrder: form.seriesOrder ? Number(form.seriesOrder) : null,
     };
 
     try {
@@ -285,6 +305,46 @@ export function PostForm({ initialData, mode }: PostFormProps) {
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
         </div>
+      </div>
+
+      {/* Series Assignment */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Series (Knowledge Base)
+          </label>
+          <select
+            value={form.seriesId}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, seriesId: e.target.value }))
+            }
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="">None (Research Library only)</option>
+            {seriesOptions.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.title}{s.titleEn ? ` / ${s.titleEn}` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+        {form.seriesId && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Chapter Order
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={form.seriesOrder}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, seriesOrder: e.target.value }))
+              }
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="1"
+            />
+          </div>
+        )}
       </div>
 
       {/* Error */}

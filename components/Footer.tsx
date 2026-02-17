@@ -29,9 +29,7 @@ export function Footer() {
               ))}
             </div>
           </div>
-          <div>
-            <p className="text-sm text-slate-600">Email: research@example.com</p>
-          </div>
+          <div />
         </div>
       </div>
     </footer>

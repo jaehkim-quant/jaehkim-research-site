@@ -2,21 +2,29 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { postsMock } from "@/lib/research/data/posts.mock";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { getPostTitle, getPostSummary } from "@/lib/research/postLocale";
 import type { Post } from "@/lib/research/types";
 
-export function LatestPostsSection() {
+interface LatestPostsSectionProps {
+  initialPosts?: Post[];
+}
+
+export function LatestPostsSection({
+  initialPosts = [],
+}: LatestPostsSectionProps = {}) {
   const { t, locale } = useTranslation();
-  const [posts, setPosts] = useState<Post[]>(postsMock.slice(0, 5));
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [loading, setLoading] = useState(initialPosts.length === 0);
 
   useEffect(() => {
+    if (initialPosts.length > 0) return;
     fetch("/api/posts")
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data: Post[]) => setPosts(data.slice(0, 5)))
-      .catch(() => {});
-  }, []);
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [initialPosts.length]);
 
   return (
     <section className="py-16 md:py-24 bg-slate-50">
@@ -24,6 +32,11 @@ export function LatestPostsSection() {
         <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-6">
           {t("home.latestTitle")}
         </h2>
+        {loading ? (
+          <div className="py-8 text-center text-slate-500">Loading...</div>
+        ) : posts.length === 0 ? (
+          <div className="py-8 text-center text-slate-500">No posts yet.</div>
+        ) : (
         <div className="space-y-4">
           {posts.map((post) => (
             <Link
@@ -49,6 +62,7 @@ export function LatestPostsSection() {
             </Link>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

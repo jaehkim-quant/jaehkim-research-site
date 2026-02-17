@@ -56,6 +56,8 @@ export default function EditPostPage() {
     date: post.date
       ? new Date(post.date as string).toISOString().split("T")[0]
       : new Date().toISOString().split("T")[0],
+    seriesId: (post.seriesId as string) || "",
+    seriesOrder: post.seriesOrder != null ? String(post.seriesOrder) : "",
   };
 
   return (
