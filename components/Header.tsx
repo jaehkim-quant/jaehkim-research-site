@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
@@ -25,9 +26,17 @@ export function Header() {
         <div className="flex items-center justify-between h-14 md:h-16">
           <Link
             href="/"
-            className="text-lg font-semibold text-slate-900 tracking-tight hover:text-accent-orange transition-colors"
+            className="flex items-center gap-2 text-slate-900 hover:opacity-90 transition-opacity"
+            aria-label={t("siteName")}
           >
-            {t("siteName")}
+            <Image
+              src="/logo/Jaehkim_research_nocircle.png"
+              alt=""
+              width={180}
+              height={40}
+              className="h-8 w-auto"
+              priority
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">

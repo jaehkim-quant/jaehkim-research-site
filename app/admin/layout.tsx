@@ -66,6 +66,16 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             >
               Inquiries
             </Link>
+            <Link
+              href="/admin/comments"
+              className={`text-sm font-medium ${
+                pathname === "/admin/comments"
+                  ? "text-orange-600"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Comments
+            </Link>
           </div>
           <div className="flex items-center gap-4">
             <Link
