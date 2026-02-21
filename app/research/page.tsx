@@ -14,12 +14,9 @@ export default async function ResearchLibraryPage() {
   const initialPosts = posts.map((p) => ({
     id: p.id,
     title: p.title,
-    titleEn: p.titleEn ?? undefined,
     slug: p.slug,
     summary: p.summary,
-    summaryEn: p.summaryEn ?? undefined,
     tags: p.tags,
-    tagsEn: p.tagsEn,
     level: p.level as Level,
     date: p.date.toISOString(),
     viewCount: p.viewCount,

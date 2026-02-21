@@ -43,14 +43,10 @@ export default function EditPostPage() {
   const initialData = {
     id: post.id as string,
     title: (post.title as string) || "",
-    titleEn: (post.titleEn as string) || "",
     slug: (post.slug as string) || "",
     summary: (post.summary as string) || "",
-    summaryEn: (post.summaryEn as string) || "",
     content: (post.content as string) || "",
-    contentEn: (post.contentEn as string) || "",
     tags: (post.tags as string[]) || [],
-    tagsEn: (post.tagsEn as string[]) || [],
     level: (post.level as string) || "중급",
     published: (post.published as boolean) || false,
     date: post.date

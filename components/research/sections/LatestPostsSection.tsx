@@ -13,18 +13,26 @@ interface LatestPostsSectionProps {
 export function LatestPostsSection({
   initialPosts = [],
 }: LatestPostsSectionProps = {}) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [loading, setLoading] = useState(initialPosts.length === 0);
 
   useEffect(() => {
-    if (initialPosts.length > 0) return;
-    fetch("/api/posts")
+    const controller = new AbortController();
+
+    fetch("/api/posts", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data: Post[]) => setPosts(data.slice(0, 5)))
-      .catch(() => {})
+      .catch((err: unknown) => {
+        if (err instanceof Error && err.name === "AbortError") return;
+      })
       .finally(() => setLoading(false));
-  }, [initialPosts.length]);
+
+    return () => controller.abort();
+  }, []);
 
   return (
     <section className="py-16 md:py-24 bg-slate-50">
@@ -46,7 +54,7 @@ export function LatestPostsSection({
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <h3 className="font-medium text-slate-900">
-                  {getPostTitle(post, locale)}
+                  {getPostTitle(post)}
                 </h3>
                 <span className="text-sm text-slate-500 shrink-0">
                   {typeof post.date === "string"
@@ -57,7 +65,7 @@ export function LatestPostsSection({
                 </span>
               </div>
               <p className="text-sm text-slate-600 mt-1 line-clamp-1">
-                {getPostSummary(post, locale)}
+                {getPostSummary(post)}
               </p>
             </Link>
           ))}

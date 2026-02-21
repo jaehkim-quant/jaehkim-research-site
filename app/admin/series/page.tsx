@@ -6,7 +6,6 @@ import Link from "next/link";
 interface SeriesItem {
   id: string;
   title: string;
-  titleEn?: string;
   slug: string;
   type: string;
   level: string;
@@ -77,9 +76,6 @@ export default function AdminSeriesPage() {
                 <tr key={s.id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="px-4 py-3">
                     <div className="text-sm font-medium text-slate-900">{s.title}</div>
-                    {s.titleEn && (
-                      <div className="text-xs text-slate-500">{s.titleEn}</div>
-                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">

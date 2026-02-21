@@ -39,7 +39,7 @@ interface ResearchLibraryClientProps {
 function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
   const searchParams = useSearchParams();
   const tagFromUrl = searchParams.get("tag");
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [posts, setPosts] = useState<Post[]>(initialPosts);
@@ -61,9 +61,9 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
   useEffect(() => {
     if (!tagFromUrl) return;
     const isKey = TAG_LIST.some((x) => x.key === tagFromUrl);
-    const label = isKey ? getTagLabel(tagFromUrl, locale) : tagFromUrl;
+    const label = isKey ? getTagLabel(tagFromUrl) : tagFromUrl;
     setSelectedTags((prev) => (prev.includes(label) ? prev : [label]));
-  }, [tagFromUrl, locale]);
+  }, [tagFromUrl]);
 
   const filtered = useMemo(() => {
     let result = posts;
@@ -75,9 +75,9 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
     if (search) {
       const q = search.toLowerCase();
       result = result.filter((p) => {
-        const title = getPostTitle(p, locale);
-        const summary = getPostSummary(p, locale);
-        const tags = getPostTags(p, locale);
+        const title = getPostTitle(p);
+        const summary = getPostSummary(p);
+        const tags = getPostTags(p);
         return (
           title.toLowerCase().includes(q) ||
           summary.toLowerCase().includes(q) ||
@@ -88,7 +88,7 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
 
     if (selectedTags.length > 0) {
       result = result.filter((p) => {
-        const tags = getPostTags(p, locale);
+        const tags = getPostTags(p);
         return selectedTags.some((sel) => tags.includes(sel));
       });
     }
@@ -116,7 +116,7 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
     }
 
     return result;
-  }, [search, selectedTags, locale, posts, sortMode, levelFilter]);
+  }, [search, selectedTags, posts, sortMode, levelFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -147,10 +147,7 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
 
   const formatMonthLabel = (key: string) => {
     const [year, month] = key.split("-");
-    const date = new Date(Number(year), Number(month) - 1);
-    return locale === "ko"
-      ? `${year}년 ${Number(month)}월`
-      : date.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+    return `${year}년 ${Number(month)}월`;
   };
 
   return (
@@ -300,10 +297,10 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
 }
 
 function ListRow({ post }: { post: Post }) {
-  const { t, locale } = useTranslation();
-  const title = getPostTitle(post, locale);
-  const summary = getPostSummary(post, locale);
-  const tags = getPostTags(post, locale);
+  const { t } = useTranslation();
+  const title = getPostTitle(post);
+  const summary = getPostSummary(post);
+  const tags = getPostTags(post);
   const levelKey = levelKeyMap[post.level] ?? "beginner";
   const dateStr =
     typeof post.date === "string" && post.date.includes("T")

@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation";
 interface SeriesData {
   id?: string;
   title: string;
-  titleEn: string;
   slug: string;
   description: string;
-  descriptionEn: string;
   type: string;
   level: string;
   published: boolean;
@@ -27,18 +25,15 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
 
   const [form, setForm] = useState<SeriesData>({
     title: initialData?.title || "",
-    titleEn: initialData?.titleEn || "",
     slug: initialData?.slug || "",
     description: initialData?.description || "",
-    descriptionEn: initialData?.descriptionEn || "",
     type: initialData?.type || "knowledge-base",
     level: initialData?.level || "중급",
     published: initialData?.published ?? false,
   });
 
   const generateSlug = () => {
-    const source = form.titleEn || form.title;
-    const slug = source
+    const slug = form.title
       .toLowerCase()
       .replace(/[^a-z0-9가-힣\s-]/g, "")
       .replace(/\s+/g, "-")
@@ -49,11 +44,11 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
 
   const handleSave = async (publish: boolean) => {
     if (!form.title) {
-      setError("Title (Korean) is required");
+      setError("제목을 입력하세요");
       return;
     }
     if (!form.slug) {
-      setError("Slug is required");
+      setError("Slug를 입력하세요");
       return;
     }
 
@@ -90,10 +85,9 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Title KO */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          Title (Korean)
+          제목
         </label>
         <input
           type="text"
@@ -104,21 +98,6 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
         />
       </div>
 
-      {/* Title EN */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Title (English)
-        </label>
-        <input
-          type="text"
-          value={form.titleEn}
-          onChange={(e) => setForm((p) => ({ ...p, titleEn: e.target.value }))}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-          placeholder="Series title in English"
-        />
-      </div>
-
-      {/* Slug */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
           URL Slug
@@ -141,10 +120,9 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
         </div>
       </div>
 
-      {/* Description KO */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          Description (Korean)
+          설명
         </label>
         <textarea
           value={form.description}
@@ -157,23 +135,6 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
         />
       </div>
 
-      {/* Description EN */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Description (English)
-        </label>
-        <textarea
-          value={form.descriptionEn}
-          onChange={(e) =>
-            setForm((p) => ({ ...p, descriptionEn: e.target.value }))
-          }
-          rows={3}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-y"
-          placeholder="Series description in English"
-        />
-      </div>
-
-      {/* Type + Level */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -204,14 +165,12 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
         </div>
       </div>
 
-      {/* Error */}
       {error && (
         <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
           {error}
         </p>
       )}
 
-      {/* Actions */}
       <div className="flex gap-3 pt-4 border-t border-slate-200">
         <button
           type="button"

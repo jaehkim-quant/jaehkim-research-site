@@ -1,11 +1,11 @@
 export type Locale = "en" | "ko";
 
-export const defaultLocale: Locale = "en";
+export const defaultLocale: Locale = "ko";
 
 export const translations = {
   en: {
     // Site
-    siteName: "JaehKim Research",
+    siteName: "Jaehkim's Research",
 
     // Nav
     nav: {
@@ -33,7 +33,8 @@ export const translations = {
       featuredDesc: "6 summary cards. Each links to Summary / Evidence.",
       viewAll: "View All Research →",
       validationTitle: "Validation Principles",
-      validationDesc: "Reproducibility, verification, risk-focused trust standards",
+      validationDesc:
+        "Reproducibility, verification, risk-focused trust standards",
       validationBadges: {
         lookahead: "Look-ahead Prevention",
         costs: "Cost Assumptions",
@@ -194,7 +195,8 @@ export const translations = {
       title: "Contact",
       desc: "Have a question or want to collaborate? Fill out the form below and I'll get back to you.",
       successTitle: "Message Sent",
-      successDesc: "Thank you for reaching out. I'll respond as soon as possible.",
+      successDesc:
+        "Thank you for reaching out. I'll respond as soon as possible.",
       sendAnother: "Send another message",
       errorGeneric: "Something went wrong. Please try again.",
       form: {
@@ -257,7 +259,7 @@ export const translations = {
   },
 
   ko: {
-    siteName: "재킴 리서치",
+    siteName: "Jaehkim's Research",
     nav: {
       home: "Home",
       research: "Research Library",
@@ -267,9 +269,9 @@ export const translations = {
       contact: "Contact",
     },
     home: {
-      heroTitle: "재현 가능한 퀀트 리서치, 검증된 인사이트",
+      heroTitle: "투자 공부를 “쌓이는 자산”으로 바꾸는 곳",
       heroDesc:
-        "룩어헤드·서바이버십 바이어스를 차단하고, MDD·턴오버·워크포워드 검증을 통해 신뢰할 수 있는 전략 인사이트를 제공합니다.",
+        "책과 논문에서 얻은 핵심을 통해 투자 철학과 전략을 구축해 나가는 곳",
       ctaResearch: "리서치 보기",
       ctaContact: "협업/자문 문의",
       socialProof: {
@@ -278,7 +280,8 @@ export const translations = {
         subscribers: "구독자",
       },
       featuredTitle: "Featured Research",
-      featuredDesc: "요약 카드 6개. 각 카드에서 Summary / Evidence로 바로 이동할 수 있습니다.",
+      featuredDesc:
+        "요약 카드 6개. 각 카드에서 Summary / Evidence로 바로 이동할 수 있습니다.",
       viewAll: "전체 리서치 보기 →",
       validationTitle: "검증 원칙",
       validationDesc: "재현성·검증·리스크 중심의 신뢰 기준",

@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
+import { customAlphabet } from "nanoid";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+/** URL-safe unique ID (0-9, a-z). 12 chars, collision-resistant (no title-based overlap). */
+const urlSafeId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12);
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -33,7 +38,11 @@ export async function GET(request: Request) {
     _count: undefined,
   }));
 
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    },
+  });
 }
 
 export async function POST(request: Request) {
@@ -45,25 +54,30 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const slug =
-      body.slug ||
-      body.titleEn
-        ?.toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "") ||
-      `post-${Date.now()}`;
+    let slug: string;
+    if (body.slug && String(body.slug).trim()) {
+      slug = String(body.slug).normalize("NFC").trim();
+    } else {
+      // Collision-resistant unique slug (no title-based overlap)
+      let candidate = urlSafeId();
+      for (let i = 0; i < 5; i++) {
+        const exists = await prisma.post.findUnique({
+          where: { slug: candidate },
+          select: { id: true },
+        });
+        if (!exists) break;
+        candidate = urlSafeId();
+      }
+      slug = candidate;
+    }
 
     const post = await prisma.post.create({
       data: {
         title: body.title,
-        titleEn: body.titleEn || null,
         slug,
         summary: body.summary,
-        summaryEn: body.summaryEn || null,
         content: body.content || null,
-        contentEn: body.contentEn || null,
         tags: body.tags || [],
-        tagsEn: body.tagsEn || [],
         level: body.level || "중급",
         published: body.published ?? false,
         date: body.date ? new Date(body.date) : new Date(),
@@ -71,6 +85,11 @@ export async function POST(request: Request) {
         seriesOrder: body.seriesOrder != null ? Number(body.seriesOrder) : null,
       },
     });
+
+    revalidatePath("/");
+    revalidatePath("/research");
+    revalidatePath("/sitemap.xml");
+    if (post.published) revalidatePath(`/research/${post.slug}`);
 
     return NextResponse.json(post, { status: 201 });
   } catch (error) {

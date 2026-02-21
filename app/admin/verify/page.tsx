@@ -3,20 +3,37 @@
 import { useState, useEffect, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function AdminVerifyPage() {
   const router = useRouter();
+  const { status } = useSession();
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/admin");
+      return;
+    }
+
+    if (status === "loading") return;
+
     const username = sessionStorage.getItem("otp_username");
     if (!username) {
       router.replace("/admin/login");
     }
-  }, [router]);
+  }, [status, router]);
+
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <p className="text-sm text-slate-500">Checking session...</p>
+      </div>
+    );
+  }
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;

@@ -53,26 +53,18 @@ function getAvatarColor(name: string) {
   return colors[Math.abs(hash) % colors.length];
 }
 
-function timeAgo(dateStr: string, locale: string) {
+function timeAgo(dateStr: string) {
   const now = Date.now();
   const diff = now - new Date(dateStr).getTime();
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
-  if (locale === "ko") {
-    if (minutes < 1) return "방금 전";
-    if (minutes < 60) return `${minutes}분 전`;
-    if (hours < 24) return `${hours}시간 전`;
-    if (days < 30) return `${days}일 전`;
-    return new Date(dateStr).toLocaleDateString("ko-KR");
-  }
-
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 30) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString("en-US");
+  if (minutes < 1) return "방금 전";
+  if (minutes < 60) return `${minutes}분 전`;
+  if (hours < 24) return `${hours}시간 전`;
+  if (days < 30) return `${days}일 전`;
+  return new Date(dateStr).toLocaleDateString("ko-KR");
 }
 
 function CommentForm({
@@ -198,7 +190,6 @@ function CommentItem({
   isReply?: boolean;
   onReplyAdded?: (reply: Reply) => void;
 }) {
-  const { locale } = useTranslation();
   const { t } = useTranslation();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const initials = getInitials(comment.name);
@@ -226,7 +217,7 @@ function CommentItem({
             {comment.name}
           </span>
           <span className="text-xs text-slate-400">
-            {timeAgo(comment.createdAt, locale)}
+            {timeAgo(comment.createdAt)}
           </span>
         </div>
 

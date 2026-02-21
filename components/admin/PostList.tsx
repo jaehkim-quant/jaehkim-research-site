@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 interface Post {
   id: string;
   title: string;
-  titleEn: string | null;
   slug: string;
   published: boolean;
   level: string;
@@ -57,8 +56,7 @@ export function PostList() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: post.title,
-          summary: "",
+          ...post,
           published: !post.published,
         }),
       });
@@ -123,16 +121,9 @@ export function PostList() {
               className="border-b border-slate-100 hover:bg-slate-50"
             >
               <td className="px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">
-                    {post.title}
-                  </p>
-                  {post.titleEn && (
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {post.titleEn}
-                    </p>
-                  )}
-                </div>
+                <p className="text-sm font-medium text-slate-900">
+                  {post.title}
+                </p>
               </td>
               <td className="px-4 py-3 hidden md:table-cell">
                 <button

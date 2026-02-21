@@ -40,10 +40,8 @@ export default function EditSeriesPage() {
   const initialData = {
     id: series.id as string,
     title: (series.title as string) || "",
-    titleEn: (series.titleEn as string) || "",
     slug: (series.slug as string) || "",
     description: (series.description as string) || "",
-    descriptionEn: (series.descriptionEn as string) || "",
     type: (series.type as string) || "knowledge-base",
     level: (series.level as string) || "중급",
     published: (series.published as boolean) || false,

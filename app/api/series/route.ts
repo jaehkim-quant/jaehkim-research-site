@@ -50,19 +50,19 @@ export async function POST(request: Request) {
 
     const slug =
       body.slug ||
-      (body.titleEn || body.title)
+      body.title
         ?.toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/[^a-z0-9가-힣\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
         .replace(/(^-|-$)/g, "") ||
       `series-${Date.now()}`;
 
     const series = await prisma.series.create({
       data: {
         title: body.title,
-        titleEn: body.titleEn || null,
         slug,
         description: body.description || null,
-        descriptionEn: body.descriptionEn || null,
         type: body.type || "knowledge-base",
         level: body.level || "중급",
         published: body.published ?? false,

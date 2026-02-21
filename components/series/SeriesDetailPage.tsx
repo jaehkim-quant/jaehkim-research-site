@@ -26,15 +26,11 @@ export function SeriesDetailPage({
   basePath,
   translationPrefix,
 }: SeriesDetailPageProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const prefix = translationPrefix;
 
-  const seriesTitle =
-    locale === "en" && series.titleEn ? series.titleEn : series.title;
-  const seriesDesc =
-    locale === "en" && series.descriptionEn
-      ? series.descriptionEn
-      : series.description;
+  const seriesTitle = series.title;
+  const seriesDesc = series.description;
 
   return (
     <div className="py-16 md:py-24 bg-white">
@@ -68,9 +64,9 @@ export function SeriesDetailPage({
         ) : (
           <div className="space-y-3">
             {series.posts.map((post, idx) => {
-              const title = getPostTitle(post, locale);
-              const summary = getPostSummary(post, locale);
-              const tags = getPostTags(post, locale);
+              const title = getPostTitle(post);
+              const summary = getPostSummary(post);
+              const tags = getPostTags(post);
               const chapterNum = post.seriesOrder ?? idx + 1;
 
               return (

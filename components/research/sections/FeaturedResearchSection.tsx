@@ -18,13 +18,21 @@ export function FeaturedResearchSection({
   const [loading, setLoading] = useState(initialPosts.length === 0);
 
   useEffect(() => {
-    if (initialPosts.length > 0) return;
-    fetch("/api/posts")
+    const controller = new AbortController();
+
+    fetch("/api/posts", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data: Post[]) => setPosts(data.slice(0, 6)))
-      .catch(() => {})
+      .catch((err: unknown) => {
+        if (err instanceof Error && err.name === "AbortError") return;
+      })
       .finally(() => setLoading(false));
-  }, [initialPosts.length]);
+
+    return () => controller.abort();
+  }, []);
 
   return (
     <section className="py-16 md:py-24 bg-white">

@@ -18,7 +18,7 @@ const websiteJsonLd = {
     "@type": "Person",
     name: "JaehKim",
   },
-  inLanguage: ["en", "ko"],
+  inLanguage: "ko",
 };
 
 export default async function HomePage() {
@@ -34,12 +34,9 @@ export default async function HomePage() {
   const serialized = posts.map((p) => ({
     id: p.id,
     title: p.title,
-    titleEn: p.titleEn ?? undefined,
     slug: p.slug,
     summary: p.summary,
-    summaryEn: p.summaryEn ?? undefined,
     tags: p.tags,
-    tagsEn: p.tagsEn,
     level: p.level as Level,
     date: p.date.toISOString(),
     viewCount: p.viewCount,

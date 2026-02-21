@@ -11,10 +11,6 @@ export const postsMock: Post[] = [
     level: "고급",
     date: "2024-01-15",
     updatedAt: "2024-02-01",
-    titleEn: "Momentum Factor Regime Dependence",
-    summaryEn:
-      "When momentum works across market regimes—out-of-sample validation. Based on data from the 2000s onward.",
-    tagsEn: ["Factor", "Momentum", "Regime"],
   },
   {
     id: "2",
@@ -25,10 +21,6 @@ export const postsMock: Post[] = [
     tags: ["리스크", "볼타일리티", "초급"],
     level: "초급",
     date: "2024-01-10",
-    titleEn: "Volatility Targeting Basics",
-    summaryEn:
-      "Position scaling by volatility target. How to set look-ahead-free backtest assumptions for fees and slippage.",
-    tagsEn: ["Risk", "Volatility", "Beginner"],
   },
   {
     id: "3",
@@ -39,10 +31,6 @@ export const postsMock: Post[] = [
     tags: ["크립토", "마켓구조"],
     level: "중급",
     date: "2024-01-05",
-    titleEn: "Crypto Market Structure Research",
-    summaryEn:
-      "Cross-exchange spreads and how structure changes with institutional flow. 24/7 data handling issues.",
-    tagsEn: ["Crypto", "Market Structure"],
   },
   {
     id: "4",
@@ -53,10 +41,6 @@ export const postsMock: Post[] = [
     tags: ["파생", "헤징", "리스크"],
     level: "고급",
     date: "2023-12-20",
-    titleEn: "Derivatives Hedging Strategies",
-    summaryEn:
-      "Building hedged portfolios with options and futures. Trade-offs between delta neutrality and gamma exposure.",
-    tagsEn: ["Derivatives", "Hedging", "Risk"],
   },
   {
     id: "5",
@@ -67,10 +51,6 @@ export const postsMock: Post[] = [
     tags: ["매크로레짐", "전략", "신호"],
     level: "중급",
     date: "2023-12-10",
-    titleEn: "Macro Regime Switching Signals",
-    summaryEn:
-      "Regime classification from rates, inflation, unemployment and strategy on/off switches. Walk-forward results included.",
-    tagsEn: ["Macro Regime", "Strategy", "Signals"],
   },
   {
     id: "6",
@@ -81,9 +61,5 @@ export const postsMock: Post[] = [
     tags: ["전략", "비용", "최적화"],
     level: "초급",
     date: "2023-11-28",
-    titleEn: "Rebalancing Frequency Optimization",
-    summaryEn:
-      "Cost vs benefit of daily/weekly/monthly rebalancing. Suggested settings from turnover and MDD.",
-    tagsEn: ["Strategy", "Costs", "Optimization"],
   },
 ];

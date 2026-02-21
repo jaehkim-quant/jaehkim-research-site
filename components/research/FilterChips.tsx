@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslation } from "@/lib/i18n/useTranslation";
 import { TAG_LIST, getTagLabel } from "@/lib/research/data/tagLabels";
 
 interface FilterChipsProps {
@@ -9,12 +8,10 @@ interface FilterChipsProps {
 }
 
 export function FilterChips({ selected, onToggle }: FilterChipsProps) {
-  const { locale } = useTranslation();
-
   return (
     <div className="flex flex-wrap gap-2">
       {TAG_LIST.map((tag) => {
-        const label = getTagLabel(tag.key, locale);
+        const label = getTagLabel(tag.key);
         return (
           <button
             key={tag.key}

@@ -29,8 +29,7 @@ export const metadata: Metadata = {
   creator: "JaehKim",
   openGraph: {
     type: "website",
-    locale: "en_US",
-    alternateLocale: "ko_KR",
+    locale: "ko_KR",
     siteName: "JaehKim Research",
     title: "JaehKim Research — Quant Research & Investment Insights",
     description:
@@ -68,13 +67,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var l=localStorage.getItem("locale");if(l==="ko"||l==="en"){document.documentElement.lang=l;document.documentElement.setAttribute("data-locale",l);}})()`,
-          }}
-        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link

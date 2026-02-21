@@ -17,11 +17,11 @@ interface ResearchCardProps {
 }
 
 export function ResearchCard({ post, variant = "default" }: ResearchCardProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const levelKey = levelKeyMap[post.level] ?? "beginner";
-  const title = getPostTitle(post, locale);
-  const summary = getPostSummary(post, locale);
-  const tags = getPostTags(post, locale);
+  const title = getPostTitle(post);
+  const summary = getPostSummary(post);
+  const tags = getPostTags(post);
 
   return (
     <Link

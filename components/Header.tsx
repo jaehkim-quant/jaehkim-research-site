@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
@@ -17,7 +16,7 @@ const navKeys = [
 
 export function Header() {
   const pathname = usePathname();
-  const { t, locale, setLocale } = useTranslation();
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -26,17 +25,9 @@ export function Header() {
         <div className="flex items-center justify-between h-14 md:h-16">
           <Link
             href="/"
-            className="flex items-center gap-2 text-slate-900 hover:opacity-90 transition-opacity"
-            aria-label={t("siteName")}
+            className="text-lg font-semibold text-slate-900 tracking-tight hover:text-accent-orange transition-colors"
           >
-            <Image
-              src="/logo/Jaehkim_research_nocircle.png"
-              alt=""
-              width={180}
-              height={40}
-              className="h-8 w-auto"
-              priority
-            />
+            {t("siteName")}
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
@@ -56,30 +47,6 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <div className="flex rounded-lg border border-slate-200 overflow-hidden">
-              <button
-                onClick={() => setLocale("en")}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                  locale === "en"
-                    ? "bg-accent-orange text-white"
-                    : "bg-white text-slate-600 hover:bg-slate-50"
-                }`}
-                aria-label="English"
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLocale("ko")}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                  locale === "ko"
-                    ? "bg-accent-orange text-white"
-                    : "bg-white text-slate-600 hover:bg-slate-50"
-                }`}
-                aria-label="한국어"
-              >
-                KO
-              </button>
-            </div>
             <button
               className="md:hidden p-2 rounded-lg hover:bg-slate-100"
               onClick={() => setMobileOpen(!mobileOpen)}

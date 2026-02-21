@@ -26,7 +26,6 @@ export interface Post {
   summary: string;
   deepDive?: string;
   content?: string;
-  contentEn?: string;
   tags: string[];
   level: Level;
   date: string;
@@ -37,22 +36,15 @@ export interface Post {
   commentCount?: number;
   assumptions?: Assumptions;
   metrics?: Metrics;
-  /** Series */
   seriesId?: string | null;
   seriesOrder?: number | null;
-  /** English content for locale "en" */
-  titleEn?: string;
-  summaryEn?: string;
-  tagsEn?: string[];
 }
 
 export interface Series {
   id: string;
   title: string;
-  titleEn?: string;
   slug: string;
   description?: string;
-  descriptionEn?: string;
   type: string;
   level: string;
   published?: boolean;

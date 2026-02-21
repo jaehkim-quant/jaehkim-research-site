@@ -21,12 +21,10 @@ export function SeriesListPage({
   basePath,
   translationPrefix,
 }: SeriesListPageProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
 
-  const getTitle = (s: Series) =>
-    locale === "en" && s.titleEn ? s.titleEn : s.title;
-  const getDesc = (s: Series) =>
-    locale === "en" && s.descriptionEn ? s.descriptionEn : s.description;
+  const getTitle = (s: Series) => s.title;
+  const getDesc = (s: Series) => s.description ?? "";
 
   const prefix = translationPrefix;
 

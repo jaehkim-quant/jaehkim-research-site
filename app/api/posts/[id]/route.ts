@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -30,18 +31,19 @@ export async function PUT(
   try {
     const body = await request.json();
 
+    const slugUpdate =
+      body.slug != null
+        ? { slug: String(body.slug).normalize("NFC").trim() }
+        : {};
+
     const post = await prisma.post.update({
       where: { id: params.id },
       data: {
         title: body.title,
-        titleEn: body.titleEn ?? undefined,
-        slug: body.slug ?? undefined,
+        ...slugUpdate,
         summary: body.summary,
-        summaryEn: body.summaryEn ?? undefined,
         content: body.content ?? undefined,
-        contentEn: body.contentEn ?? undefined,
         tags: body.tags ?? undefined,
-        tagsEn: body.tagsEn ?? undefined,
         level: body.level ?? undefined,
         published: body.published ?? undefined,
         date: body.date ? new Date(body.date) : undefined,
@@ -49,6 +51,11 @@ export async function PUT(
         seriesOrder: body.seriesOrder !== undefined ? (body.seriesOrder != null ? Number(body.seriesOrder) : null) : undefined,
       },
     });
+
+    revalidatePath("/");
+    revalidatePath("/research");
+    revalidatePath("/sitemap.xml");
+    revalidatePath(`/research/${post.slug}`);
 
     return NextResponse.json(post);
   } catch (error) {
@@ -70,9 +77,17 @@ export async function DELETE(
   }
 
   try {
+    const post = await prisma.post.findUnique({
+      where: { id: params.id },
+      select: { slug: true },
+    });
     await prisma.post.delete({
       where: { id: params.id },
     });
+    revalidatePath("/");
+    revalidatePath("/research");
+    revalidatePath("/sitemap.xml");
+    if (post?.slug) revalidatePath(`/research/${post.slug}`);
 
     return NextResponse.json({ success: true });
   } catch (error) {

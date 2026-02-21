@@ -13,10 +13,8 @@ export default async function KnowledgeBasePage() {
   const data = seriesList.map((s) => ({
     id: s.id,
     title: s.title,
-    titleEn: s.titleEn ?? undefined,
     slug: s.slug,
     description: s.description ?? undefined,
-    descriptionEn: s.descriptionEn ?? undefined,
     type: s.type,
     level: s.level,
     published: s.published,

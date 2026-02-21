@@ -11,14 +11,10 @@ datasource db {
 model Post {
   id          String   @id @default(cuid())
   title       String
-  titleEn     String?
   slug        String   @unique
   summary     String
-  summaryEn   String?
   content     String?  @db.Text
-  contentEn   String?  @db.Text
   tags        String[]
-  tagsEn      String[]
   level       String   @default("중급")
   published   Boolean  @default(false)
   viewCount   Int      @default(0)
@@ -33,18 +29,16 @@ model Post {
 }
 
 model Series {
-  id            String   @id @default(cuid())
-  title         String
-  titleEn       String?
-  slug          String   @unique
-  description   String?  @db.Text
-  descriptionEn String?  @db.Text
-  type          String   @default("knowledge-base")
-  level         String   @default("중급")
-  published     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  posts         Post[]
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?  @db.Text
+  type        String   @default("knowledge-base")
+  level       String   @default("중급")
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  posts       Post[]
 }
 
 model PostLike {

@@ -10,11 +10,15 @@ import {
   getPostTags,
 } from "@/lib/research/postLocale";
 import { CommentSection } from "@/components/research/CommentSection";
+import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer";
 import type { Post } from "@/lib/research/types";
 
 interface PostDetailClientProps {
   initialPost?: Post | null;
   initialAllPosts?: Post[];
+  initialComments?: Comment[];
+  /** When true, comments were loaded on the server; skip client fetch to avoid lag */
+  hasInitialCommentsFromServer?: boolean;
 }
 
 const levelKeyMap: Record<string, string> = {
@@ -46,35 +50,56 @@ interface TocItem {
   level: number;
 }
 
-function estimateReadTime(html: string | undefined): number {
-  if (!html) return 1;
-  const text = html.replace(/<[^>]*>/g, "");
+function toPlainText(markdown: string | undefined): string {
+  if (!markdown) return "";
+  return markdown
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[#>*_~`|[\]()-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function estimateReadTime(markdown: string | undefined): number {
+  const text = toPlainText(markdown);
+  if (!text) return 1;
   const words = text.trim().split(/\s+/).length;
   return Math.max(1, Math.round(words / 200));
 }
 
-function extractToc(html: string | undefined): TocItem[] {
-  if (!html) return [];
-  const regex = /<(h[2-3])[^>]*id="([^"]*)"[^>]*>(.*?)<\/\1>/gi;
+function extractToc(markdown: string | undefined): TocItem[] {
+  if (!markdown) return [];
   const items: TocItem[] = [];
+
+  const headingMatches = Array.from(markdown.matchAll(/^(#{2,3})\s+(.+)$/gm));
+  for (const match of headingMatches) {
+    const level = match[1].length;
+    const rawText = match[2].replace(/\s+#+\s*$/, "");
+    const text = rawText
+      .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+      .replace(/[`*_~]/g, "")
+      .trim();
+    if (!text) continue;
+    const id = text
+      .toLowerCase()
+      .replace(/[^a-z0-9가-힣]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    items.push({ id, text, level });
+  }
+
+  if (items.length > 0) return items;
+
+  const fallback = /<(h[2-3])[^>]*id="([^"]*)"[^>]*>(.*?)<\/\1>/gi;
   let match;
-  while ((match = regex.exec(html)) !== null) {
+  while ((match = fallback.exec(markdown)) !== null) {
     items.push({
       id: match[2],
       text: match[3].replace(/<[^>]*>/g, ""),
-      level: parseInt(match[1][1]),
+      level: parseInt(match[1][1], 10),
     });
-  }
-  if (items.length === 0) {
-    const fallback = /<(h[2-3])[^>]*>(.*?)<\/\1>/gi;
-    while ((match = fallback.exec(html)) !== null) {
-      const text = match[2].replace(/<[^>]*>/g, "");
-      const id = text
-        .toLowerCase()
-        .replace(/[^a-z0-9가-힣]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-      items.push({ id, text, level: parseInt(match[1][1]) });
-    }
   }
   return items;
 }
@@ -82,10 +107,12 @@ function extractToc(html: string | undefined): TocItem[] {
 export default function PostDetailClient({
   initialPost = null,
   initialAllPosts = [],
+  initialComments = [],
+  hasInitialCommentsFromServer = false,
 }: PostDetailClientProps = {}) {
   const params = useParams();
   const slug = params.slug as string;
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [allPosts, setAllPosts] = useState<Post[]>(initialAllPosts);
@@ -94,7 +121,7 @@ export default function PostDetailClient({
   const [viewCount, setViewCount] = useState(initialPost?.viewCount ?? 0);
   const [likeCount, setLikeCount] = useState(initialPost?.likeCount ?? 0);
   const [liked, setLiked] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [shareTooltip, setShareTooltip] = useState(false);
   const viewRecordedRef = useRef(false);
 
@@ -133,11 +160,14 @@ export default function PostDetailClient({
       })
       .catch(() => {});
 
-    fetch(`/api/posts/${post.id}/comments`)
-      .then((r) => r.json())
-      .then((d) => setComments(d))
-      .catch(() => {});
-  }, [post]);
+    // Skip comment fetch when server already sent initial data (avoids lag on first paint)
+    if (!hasInitialCommentsFromServer) {
+      fetch(`/api/posts/${post.id}/comments`)
+        .then((r) => r.json())
+        .then((d) => setComments(Array.isArray(d) ? d : []))
+        .catch(() => {});
+    }
+  }, [post, hasInitialCommentsFromServer]);
 
   const handleLike = async () => {
     if (!post) return;
@@ -186,11 +216,10 @@ export default function PostDetailClient({
   }
 
   const levelKey = levelKeyMap[post.level as string] ?? "beginner";
-  const title = getPostTitle(post, locale);
-  const summary = getPostSummary(post, locale);
-  const tags = getPostTags(post, locale);
-  const content =
-    locale === "en" && post.contentEn ? post.contentEn : post.content;
+  const title = getPostTitle(post);
+  const summary = getPostSummary(post);
+  const tags = getPostTags(post);
+  const content = post.content;
   const readTime = estimateReadTime(content);
   const toc = extractToc(content);
 
@@ -273,9 +302,9 @@ export default function PostDetailClient({
                 <h2 className="text-lg font-semibold text-slate-900 mb-4">
                   {t("research.deepDiveTab")}
                 </h2>
-                <div
-                  className="prose prose-sm max-w-none text-slate-700"
-                  dangerouslySetInnerHTML={{ __html: content }}
+                <MarkdownRenderer
+                  markdown={content}
+                  className="text-slate-700"
                 />
               </div>
             ) : (
@@ -349,7 +378,7 @@ export default function PostDetailClient({
                     ← {t("research.prevPost")}
                   </span>
                   <p className="text-sm font-medium text-slate-900 mt-1 line-clamp-1">
-                    {getPostTitle(prevPost, locale)}
+                    {getPostTitle(prevPost)}
                   </p>
                 </Link>
               ) : (
@@ -364,7 +393,7 @@ export default function PostDetailClient({
                     {t("research.nextPost")} →
                   </span>
                   <p className="text-sm font-medium text-slate-900 mt-1 line-clamp-1">
-                    {getPostTitle(nextPost, locale)}
+                    {getPostTitle(nextPost)}
                   </p>
                 </Link>
               ) : (
@@ -386,10 +415,10 @@ export default function PostDetailClient({
                       className="p-4 rounded-lg border border-slate-200 hover:border-accent-orange/50 transition-colors"
                     >
                       <h4 className="text-sm font-semibold text-slate-900 mb-1 line-clamp-1">
-                        {getPostTitle(rp, locale)}
+                        {getPostTitle(rp)}
                       </h4>
                       <p className="text-xs text-slate-600 line-clamp-2">
-                        {getPostSummary(rp, locale)}
+                        {getPostSummary(rp)}
                       </p>
                     </Link>
                   ))}

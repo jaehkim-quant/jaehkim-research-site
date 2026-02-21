@@ -52,10 +52,8 @@ export async function PUT(
       where: { id: params.id },
       data: {
         title: body.title,
-        titleEn: body.titleEn || null,
         slug: body.slug,
-        description: body.description || null,
-        descriptionEn: body.descriptionEn || null,
+        description: body.description ?? null,
         type: body.type || undefined,
         level: body.level || "중급",
         published: body.published ?? false,

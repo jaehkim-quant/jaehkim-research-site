@@ -2,19 +2,32 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { RichEditor } from "./RichEditor";
+import { PostEditor } from "./PostEditor";
+
+const SLUG_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+const SLUG_LENGTH = 12;
+
+function createRandomSlug() {
+  const bytes = new Uint8Array(SLUG_LENGTH);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i += 1) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  return Array.from(bytes, (b) => SLUG_ALPHABET[b % SLUG_ALPHABET.length]).join(
+    ""
+  );
+}
 
 interface PostData {
   id?: string;
   title: string;
-  titleEn: string;
   slug: string;
   summary: string;
-  summaryEn: string;
   content: string;
-  contentEn: string;
   tags: string[];
-  tagsEn: string[];
   level: string;
   published: boolean;
   date: string;
@@ -25,7 +38,6 @@ interface PostData {
 interface SeriesOption {
   id: string;
   title: string;
-  titleEn?: string;
 }
 
 interface PostFormProps {
@@ -35,10 +47,16 @@ interface PostFormProps {
 
 export function PostForm({ initialData, mode }: PostFormProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"ko" | "en">("ko");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [slugGenerating, setSlugGenerating] = useState(false);
   const [seriesOptions, setSeriesOptions] = useState<SeriesOption[]>([]);
+  const draftStorageKey =
+    mode === "edit" && initialData?.id
+      ? `post-form-draft:${initialData.id}`
+      : "post-form-draft:new";
 
   useEffect(() => {
     fetch("/api/series?all=true")
@@ -49,14 +67,10 @@ export function PostForm({ initialData, mode }: PostFormProps) {
 
   const [form, setForm] = useState<PostData>({
     title: initialData?.title || "",
-    titleEn: initialData?.titleEn || "",
     slug: initialData?.slug || "",
     summary: initialData?.summary || "",
-    summaryEn: initialData?.summaryEn || "",
     content: initialData?.content || "",
-    contentEn: initialData?.contentEn || "",
     tags: initialData?.tags || [],
-    tagsEn: initialData?.tagsEn || [],
     level: initialData?.level || "중급",
     published: initialData?.published ?? false,
     date: initialData?.date || new Date().toISOString().split("T")[0],
@@ -65,26 +79,81 @@ export function PostForm({ initialData, mode }: PostFormProps) {
   });
 
   const [tagsInput, setTagsInput] = useState(form.tags.join(", "));
-  const [tagsEnInput, setTagsEnInput] = useState(form.tagsEn.join(", "));
 
-  const generateSlug = () => {
-    const source = form.titleEn || form.title;
-    const slug = source
-      .toLowerCase()
-      .replace(/[^a-z0-9가-힣\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    setForm((prev) => ({ ...prev, slug }));
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(draftStorageKey);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as {
+        form?: PostData;
+        tagsInput?: string;
+        savedAt?: string;
+      };
+      if (!draft.form) return;
+      setForm((prev) => ({ ...prev, ...draft.form }));
+      setTagsInput(
+        typeof draft.tagsInput === "string"
+          ? draft.tagsInput
+          : (draft.form.tags || []).join(", ")
+      );
+      setDraftRestored(true);
+      if (draft.savedAt) setLastSavedAt(draft.savedAt);
+    } catch {
+      // Ignore malformed draft payloads
+    }
+  }, [draftStorageKey]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const savedAt = new Date().toISOString();
+        localStorage.setItem(
+          draftStorageKey,
+          JSON.stringify({ form, tagsInput, savedAt })
+        );
+        setLastSavedAt(savedAt);
+      } catch {
+        // Ignore storage failures (private mode/quota)
+      }
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [form, tagsInput, draftStorageKey]);
+
+  const generateSlug = async () => {
+    setSlugGenerating(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/posts?all=true");
+      if (!res.ok) throw new Error();
+      const posts = (await res.json()) as Array<{ slug?: string }>;
+      const existingSlugs = new Set(
+        posts
+          .map((p) => (typeof p.slug === "string" ? p.slug : ""))
+          .filter(Boolean)
+      );
+
+      let candidate = createRandomSlug();
+      for (let i = 0; i < 8; i += 1) {
+        if (!existingSlugs.has(candidate)) break;
+        candidate = createRandomSlug();
+      }
+      setForm((prev) => ({ ...prev, slug: candidate }));
+    } catch {
+      // Fallback: still generate collision-resistant random slug locally.
+      setForm((prev) => ({ ...prev, slug: createRandomSlug() }));
+    } finally {
+      setSlugGenerating(false);
+    }
   };
 
   const handleSave = async (publish: boolean) => {
     if (!form.title) {
-      setError("Title (Korean) is required");
+      setError("제목을 입력하세요");
       return;
     }
     if (!form.slug) {
-      setError("Slug is required");
+      setError("Slug를 입력하세요");
       return;
     }
 
@@ -95,15 +164,10 @@ export function PostForm({ initialData, mode }: PostFormProps) {
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
-    const tagsEn = tagsEnInput
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
 
     const body = {
       ...form,
       tags,
-      tagsEn,
       published: publish,
       seriesId: form.seriesId || null,
       seriesOrder: form.seriesOrder ? Number(form.seriesOrder) : null,
@@ -127,6 +191,7 @@ export function PostForm({ initialData, mode }: PostFormProps) {
         throw new Error(data.error || "Save failed");
       }
 
+      localStorage.removeItem(draftStorageKey);
       router.push("/admin");
       router.refresh();
     } catch (err) {
@@ -137,50 +202,19 @@ export function PostForm({ initialData, mode }: PostFormProps) {
 
   return (
     <div className="space-y-6">
-      {/* Language tabs */}
-      <div className="flex gap-1 bg-slate-100 p-1 rounded-lg w-fit">
-        <button
-          type="button"
-          onClick={() => setActiveTab("ko")}
-          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "ko"
-              ? "bg-white text-slate-900 shadow-sm"
-              : "text-slate-600 hover:text-slate-900"
-          }`}
-        >
-          Korean
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("en")}
-          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "en"
-              ? "bg-white text-slate-900 shadow-sm"
-              : "text-slate-600 hover:text-slate-900"
-          }`}
-        >
-          English
-        </button>
-      </div>
-
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          {activeTab === "ko" ? "Title (Korean)" : "Title (English)"}
+          제목
         </label>
         <input
           type="text"
-          value={activeTab === "ko" ? form.title : form.titleEn}
+          value={form.title}
           onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              [activeTab === "ko" ? "title" : "titleEn"]: e.target.value,
-            }))
+            setForm((prev) => ({ ...prev, title: e.target.value }))
           }
           className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder={
-            activeTab === "ko" ? "게시글 제목" : "Post title in English"
-          }
+          placeholder="게시글 제목"
         />
       </div>
 
@@ -202,9 +236,10 @@ export function PostForm({ initialData, mode }: PostFormProps) {
           <button
             type="button"
             onClick={generateSlug}
-            className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors"
+            disabled={slugGenerating}
+            className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 disabled:opacity-50 transition-colors"
           >
-            Auto
+            {slugGenerating ? "Generating..." : "Auto"}
           </button>
         </div>
       </div>
@@ -212,65 +247,51 @@ export function PostForm({ initialData, mode }: PostFormProps) {
       {/* Summary */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          {activeTab === "ko" ? "Summary (Korean)" : "Summary (English)"}
+          요약
         </label>
         <textarea
-          value={activeTab === "ko" ? form.summary : form.summaryEn}
+          value={form.summary}
           onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              [activeTab === "ko" ? "summary" : "summaryEn"]: e.target.value,
-            }))
+            setForm((prev) => ({ ...prev, summary: e.target.value }))
           }
           rows={3}
           className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-y"
-          placeholder={
-            activeTab === "ko"
-              ? "게시글 요약을 입력하세요"
-              : "Brief summary in English"
-          }
+          placeholder="게시글 요약을 입력하세요"
         />
       </div>
 
       {/* Content (Rich Editor) */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          {activeTab === "ko" ? "Content (Korean)" : "Content (English)"}
+          본문
         </label>
-        {activeTab === "ko" ? (
-          <RichEditor
-            content={form.content}
-            onChange={(html) =>
-              setForm((prev) => ({ ...prev, content: html }))
-            }
-            placeholder="본문을 작성하세요..."
-          />
-        ) : (
-          <RichEditor
-            content={form.contentEn}
-            onChange={(html) =>
-              setForm((prev) => ({ ...prev, contentEn: html }))
-            }
-            placeholder="Write content in English..."
-          />
-        )}
+        <PostEditor
+          markdown={form.content}
+          onChange={(markdown) =>
+            setForm((prev) => ({ ...prev, content: markdown }))
+          }
+          onSave={() => handleSave(false)}
+          placeholder="본문을 작성하세요..."
+        />
+        <p className="mt-2 text-xs text-slate-500">
+          {draftRestored && "초안을 복구했습니다. "}
+          {lastSavedAt
+            ? `자동 저장: ${new Date(lastSavedAt).toLocaleTimeString()}`
+            : "자동 저장 대기 중..."}
+        </p>
       </div>
 
       {/* Tags */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          {activeTab === "ko" ? "Tags (Korean)" : "Tags (English)"}
+          태그
         </label>
         <input
           type="text"
-          value={activeTab === "ko" ? tagsInput : tagsEnInput}
-          onChange={(e) =>
-            activeTab === "ko"
-              ? setTagsInput(e.target.value)
-              : setTagsEnInput(e.target.value)
-          }
+          value={tagsInput}
+          onChange={(e) => setTagsInput(e.target.value)}
           className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Comma separated: tag1, tag2, tag3"
+          placeholder="쉼표로 구분: tag1, tag2, tag3"
         />
       </div>
 
@@ -323,7 +344,7 @@ export function PostForm({ initialData, mode }: PostFormProps) {
             <option value="">None (Research Library only)</option>
             {seriesOptions.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.title}{s.titleEn ? ` / ${s.titleEn}` : ""}
+                {s.title}
               </option>
             ))}
           </select>

@@ -47,5 +47,20 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
   },
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 24 * 60 * 60, // 24시간 (초) - 브라우저 종료 후에도 쿠키 유지
+      },
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET,
 };
