@@ -302,7 +302,7 @@ export const translations = {
       contact: "Contact",
     },
     home: {
-      heroTitle: "투자 공부를 “쌓이는 자산”으로 바꾸는 곳",
+      heroTitle: "금융 투자에 관한 모든 공부",
       heroDesc:
         "책과 논문에서 얻은 핵심을 통해 투자 철학과 전략을 구축해 나가는 곳",
       ctaResearch: "리서치 보기",
@@ -314,7 +314,7 @@ export const translations = {
       },
       featuredTitle: "Featured Research",
       featuredDesc:
-        "요약 카드 6개. 각 카드에서 Summary / Evidence로 바로 이동할 수 있습니다.",
+        "Research Library에서 투자 전략과 팩터, 리스크, 마켓구조 등 다양한 주제를 탐색할 수 있습니다.",
       viewAll: "전체 리서치 보기 →",
       validationTitle: "검증 원칙",
       validationDesc: "재현성·검증·리스크 중심의 신뢰 기준",

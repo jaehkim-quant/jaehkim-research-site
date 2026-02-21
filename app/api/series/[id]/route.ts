@@ -3,12 +3,28 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+function normalizeSlug(value: string | undefined): string {
+  if (!value || typeof value !== "string") return "";
+  try {
+    return decodeURIComponent(value).normalize("NFC").trim();
+  } catch {
+    return value.normalize("NFC").trim();
+  }
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
+  const normalized = normalizeSlug(params.id);
+  const nfc = normalized.normalize("NFC");
+  const nfd = normalized.normalize("NFD");
+  const slugCandidates = nfc !== nfd ? [nfc, nfd] : [nfc];
+
   const series = await prisma.series.findFirst({
-    where: { OR: [{ id: params.id }, { slug: params.id }] },
+    where: {
+      OR: [{ id: normalized }, { slug: { in: slugCandidates } }],
+    },
     include: {
       posts: {
         where: { published: true },
@@ -52,7 +68,10 @@ export async function PUT(
       where: { id: params.id },
       data: {
         title: body.title,
-        slug: body.slug,
+        slug:
+          body.slug != null
+            ? String(body.slug).normalize("NFC").trim()
+            : undefined,
         description: body.description ?? null,
         type: body.type || undefined,
         level: body.level || "중급",

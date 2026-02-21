@@ -3,6 +3,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const SLUG_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+const SLUG_LENGTH = 12;
+
+function createRandomSlug() {
+  const bytes = new Uint8Array(SLUG_LENGTH);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i += 1) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  return Array.from(bytes, (b) => SLUG_ALPHABET[b % SLUG_ALPHABET.length]).join(
+    ""
+  );
+}
+
 interface SeriesData {
   id?: string;
   title: string;
@@ -22,6 +39,7 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [slugGenerating, setSlugGenerating] = useState(false);
 
   const [form, setForm] = useState<SeriesData>({
     title: initialData?.title || "",
@@ -32,14 +50,31 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
     published: initialData?.published ?? false,
   });
 
-  const generateSlug = () => {
-    const slug = form.title
-      .toLowerCase()
-      .replace(/[^a-z0-9가-힣\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    setForm((prev) => ({ ...prev, slug }));
+  const generateSlug = async () => {
+    setSlugGenerating(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/series?all=true");
+      if (!res.ok) throw new Error();
+      const seriesList = (await res.json()) as Array<{ slug?: string }>;
+      const existingSlugs = new Set(
+        seriesList
+          .map((s) => (typeof s.slug === "string" ? s.slug : ""))
+          .filter(Boolean)
+      );
+
+      let candidate = createRandomSlug();
+      for (let i = 0; i < 8; i += 1) {
+        if (!existingSlugs.has(candidate)) break;
+        candidate = createRandomSlug();
+      }
+      setForm((prev) => ({ ...prev, slug: candidate }));
+    } catch {
+      setForm((prev) => ({ ...prev, slug: createRandomSlug() }));
+    } finally {
+      setSlugGenerating(false);
+    }
   };
 
   const handleSave = async (publish: boolean) => {
@@ -113,9 +148,10 @@ export function SeriesForm({ initialData, mode }: SeriesFormProps) {
           <button
             type="button"
             onClick={generateSlug}
+            disabled={slugGenerating}
             className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors"
           >
-            Auto
+            {slugGenerating ? "Generating..." : "Auto"}
           </button>
         </div>
       </div>

@@ -3,13 +3,30 @@ import { prisma } from "@/lib/prisma";
 import { SeriesDetailPage } from "@/components/series/SeriesDetailPage";
 import type { Level } from "@/lib/research/types";
 
+function normalizeSlug(slug: string | undefined): string {
+  if (!slug || typeof slug !== "string") return "";
+  try {
+    return decodeURIComponent(slug).normalize("NFC").trim();
+  } catch {
+    return slug.normalize("NFC").trim();
+  }
+}
+
 export default async function KnowledgeBaseSeriesPage({
   params,
 }: {
   params: { slug: string };
 }) {
+  const normalized = normalizeSlug(params.slug);
+  const nfc = normalized.normalize("NFC");
+  const nfd = normalized.normalize("NFD");
+  const slugCandidates = nfc !== nfd ? [nfc, nfd] : [nfc];
+
   const series = await prisma.series.findFirst({
-    where: { OR: [{ id: params.slug }, { slug: params.slug }] },
+    where: {
+      type: "knowledge-base",
+      OR: [{ id: normalized }, { slug: { in: slugCandidates } }],
+    },
     include: {
       posts: {
         where: { published: true },

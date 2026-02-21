@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { customAlphabet } from "nanoid";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+const urlSafeId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12);
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -48,15 +51,21 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const slug =
-      body.slug ||
-      body.title
-        ?.toLowerCase()
-        .replace(/[^a-z0-9가-힣\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/(^-|-$)/g, "") ||
-      `series-${Date.now()}`;
+    let slug: string;
+    if (body.slug && String(body.slug).trim()) {
+      slug = String(body.slug).normalize("NFC").trim();
+    } else {
+      let candidate = urlSafeId();
+      for (let i = 0; i < 5; i++) {
+        const exists = await prisma.series.findUnique({
+          where: { slug: candidate },
+          select: { id: true },
+        });
+        if (!exists) break;
+        candidate = urlSafeId();
+      }
+      slug = candidate;
+    }
 
     const series = await prisma.series.create({
       data: {
