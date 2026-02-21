@@ -1,191 +1,153 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+
+type AboutProfile = {
+  name: string;
+  role: string;
+  location: string;
+  photoAlt: string;
+  photoFallback: string;
+  photoSrc: string;
+  linkedinUrl: string;
+  linkedinLabel: string;
+};
+
+type TimelineItem = {
+  period: string;
+  role: string;
+  org: string;
+  desc: string;
+};
 
 export default function AboutPage() {
   const { t, tArray, tObj } = useTranslation();
+  const [imageError, setImageError] = useState(false);
 
-  const backtestKeys = [
-    "lookahead",
-    "survivorship",
-    "rebalance",
-    "slippage",
-  ] as const;
-  const mt = tObj("evidence.metricsTable") as Record<string, string>;
-  const at = tObj("evidence.assumptionsTable") as Record<string, string>;
+  const profile = tObj("about.profile") as AboutProfile;
+  const summaryItems = tArray("about.summaryItems");
+  const highlights = tArray("about.highlights");
+  const focusItems = tArray("about.focusItems");
+  const timelineItems = Object.values(
+    tObj("about.timelineItems") as Record<string, TimelineItem>
+  );
 
   return (
-    <div className="py-16 md:py-24 bg-white">
+    <div className="py-16 md:py-24 bg-slate-50">
       <div className="max-w-content mx-auto px-6">
-        <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
-          {t("about.title")}
-        </h1>
+        <div className="mb-12">
+          <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-3">
+            {t("about.title")}
+          </h1>
+          <p className="text-slate-600">{t("about.subtitle")}</p>
+        </div>
 
-        {/* Introduction */}
-        <section className="mb-16 max-w-2xl">
-          <h2 className="text-2xl font-semibold text-slate-900 mb-6">
-            {t("about.introTitle")}
-          </h2>
-          <p className="text-slate-600 leading-relaxed mb-4">
-            {t("about.introDesc")}
-          </p>
-          <ul className="space-y-2 text-slate-600">
-            {tArray("about.introItems").map((item, i) => (
-              <li key={i}>• {item}</li>
+        <section className="grid gap-8 lg:grid-cols-[300px_1fr] mb-16">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="aspect-[4/5] rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center">
+              {!imageError && profile.photoSrc ? (
+                <Image
+                  src={profile.photoSrc}
+                  alt={profile.photoAlt}
+                  width={480}
+                  height={600}
+                  className="h-full w-full object-cover"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <span className="text-4xl font-semibold text-slate-400">
+                  {profile.photoFallback}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-8">
+            <h2 className="text-2xl font-semibold text-slate-900">
+              {profile.name}
+            </h2>
+            <p className="text-lg text-slate-700 mt-1">{profile.role}</p>
+            <p className="text-sm text-slate-500 mt-2">{profile.location}</p>
+
+            <div className="mt-6 space-y-3 text-slate-600 leading-relaxed">
+              {summaryItems.map((item, index) => (
+                <p key={index}>{item}</p>
+              ))}
+            </div>
+
+            <a
+              href={profile.linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex mt-6 text-sm font-medium text-accent-orange hover:underline"
+            >
+              {profile.linkedinLabel}
+            </a>
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h3 className="text-2xl font-semibold text-slate-900 mb-6">
+            {t("about.highlightsTitle")}
+          </h3>
+          <ul className="grid gap-4 md:grid-cols-3">
+            {highlights.map((item, index) => (
+              <li
+                key={index}
+                className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-700 leading-relaxed"
+              >
+                {item}
+              </li>
             ))}
           </ul>
         </section>
 
-        {/* Ethics / Conflict / Disclaimer */}
-        <section className="mb-16 max-w-2xl">
-          <h2 className="text-2xl font-semibold text-slate-900 mb-6">
-            {t("about.ethicsTitle")}
-          </h2>
-          <div className="space-y-4 text-slate-600">
-            {tArray("about.ethicsItems").map((item, i) => (
-              <p key={i}>{item}</p>
+        <section className="mb-16">
+          <h3 className="text-2xl font-semibold text-slate-900 mb-6">
+            {t("about.timelineTitle")}
+          </h3>
+          <div className="space-y-4">
+            {timelineItems.map((item) => (
+              <article
+                key={`${item.period}-${item.role}`}
+                className="rounded-xl border border-slate-200 bg-white p-6"
+              >
+                <p className="text-sm text-slate-500 mb-2">{item.period}</p>
+                <h4 className="text-lg font-semibold text-slate-900">
+                  {item.role}
+                </h4>
+                <p className="text-sm text-slate-600 mb-3">{item.org}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {item.desc}
+                </p>
+              </article>
             ))}
           </div>
         </section>
 
-        {/* ── Evidence & Validation (통합) ── */}
-        <div className="border-t border-slate-200 pt-16 mb-16">
-          <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">
-            {t("evidence.title")}
-          </h2>
-          <p className="text-slate-600 mb-12 max-w-2xl">
-            {t("evidence.desc")}
-          </p>
-
-          {/* Backtest Principles */}
-          <section className="mb-16">
-            <h3 className="text-xl font-semibold text-slate-900 mb-6">
-              {t("evidence.backtestTitle")}
-            </h3>
-            <div className="grid gap-6 md:grid-cols-2">
-              {backtestKeys.map((key) => {
-                const item = tObj(`evidence.backtestItems.${key}`) as {
-                  title: string;
-                  desc: string;
-                };
-                return (
-                  <div
-                    key={key}
-                    className="p-6 rounded-xl border border-slate-200 bg-slate-50"
-                  >
-                    <h4 className="font-semibold text-slate-900 mb-2">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-slate-600">{item.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Validation Framework */}
-          <section className="mb-16">
-            <h3 className="text-xl font-semibold text-slate-900 mb-6">
-              {t("evidence.validationTitle")}
-            </h3>
-            <ul className="space-y-3 text-slate-600">
-              {tArray("evidence.validationItems").map((item, i) => (
-                <li key={i}>• {item}</li>
-              ))}
-            </ul>
-          </section>
-
-          {/* Performance Metric Standards */}
-          <section className="mb-16">
-            <h3 className="text-xl font-semibold text-slate-900 mb-6">
-              {t("evidence.metricsTitle")}
-            </h3>
-            <p className="text-slate-600 mb-4">{t("evidence.metricsDesc")}</p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse border border-slate-200">
-                <thead>
-                  <tr className="bg-slate-100">
-                    <th className="border border-slate-200 p-3 text-left font-semibold">
-                      {mt.metric}
-                    </th>
-                    <th className="border border-slate-200 p-3 text-left font-semibold">
-                      {mt.description}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    [mt.mdd, mt.mddDesc],
-                    [mt.sharpe, mt.sharpeDesc],
-                    [mt.sortino, mt.sortinoDesc],
-                    [mt.calmar, mt.calmarDesc],
-                    [mt.turnover, mt.turnoverDesc],
-                  ].map(([metric, desc]) => (
-                    <tr key={metric}>
-                      <td className="border border-slate-200 p-3 font-medium text-slate-900">
-                        {metric}
-                      </td>
-                      <td className="border border-slate-200 p-3 text-slate-600">
-                        {desc}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* Assumptions Table */}
-          <section className="mb-16">
-            <h3 className="text-xl font-semibold text-slate-900 mb-6">
-              {t("evidence.assumptionsTitle")}
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse border border-slate-200">
-                <thead>
-                  <tr className="bg-slate-100">
-                    <th className="border border-slate-200 p-3 text-left font-semibold">
-                      {at.item}
-                    </th>
-                    <th className="border border-slate-200 p-3 text-left font-semibold">
-                      {at.default}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    [at.dataRange, at.dataRangeVal],
-                    [at.universe, at.universeVal],
-                    [at.rebalance, at.rebalanceVal],
-                    [at.costs, at.costsVal],
-                    [at.slippage, at.slippageVal],
-                    [at.execution, at.executionVal],
-                  ].map(([item, val]) => (
-                    <tr key={item}>
-                      <td className="border border-slate-200 p-3 font-medium text-slate-900">
-                        {item}
-                      </td>
-                      <td className="border border-slate-200 p-3 text-slate-600">
-                        {val}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
+        <section className="mb-16">
+          <h3 className="text-2xl font-semibold text-slate-900 mb-6">
+            {t("about.focusTitle")}
+          </h3>
+          <ul className="space-y-2 text-slate-700">
+            {focusItems.map((item, index) => (
+              <li key={index}>• {item}</li>
+            ))}
+          </ul>
+        </section>
 
         <p className="text-slate-600">
-          {t("about.contactLink")}{" "}
+          {t("about.contactPrefix")}{" "}
           <Link
             href="/contact"
             className="font-medium text-accent-orange hover:underline"
           >
             {t("about.contactPage")}
           </Link>{" "}
-          {t("about.contactPageLink")}
+          {t("about.contactSuffix")}
         </p>
       </div>
     </div>

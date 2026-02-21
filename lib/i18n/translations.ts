@@ -170,24 +170,57 @@ export const translations = {
     // About
     about: {
       title: "About",
-      introTitle: "Introduction",
-      introDesc:
-        "Principles over credentials. Sharing investment philosophy, risk philosophy, and working style.",
-      introItems: [
-        "Reproducible methodology, disclosed assumptions",
-        "Out-of-sample · walk-forward validation mandatory",
-        "Report MDD, turnover and other risk metrics together",
-        "Proactive conflict of interest · ethics disclosure",
+      subtitle: "Profile and experience",
+      profile: {
+        name: "Jaehoon Kim",
+        role: "Family Office CEO · Quant Researcher",
+        location: "Seoul, South Korea",
+        photoAlt: "Portrait of Jaehoon Kim",
+        photoFallback: "JK",
+        photoSrc: "/uploads/jaehoon-kim-profile.jpg",
+        linkedinUrl: "https://www.linkedin.com/in/jaehoon-kim-93017b140",
+        linkedinLabel: "View LinkedIn profile",
+      },
+      summaryItems: [
+        "I lead a family office and run quant research focused on reproducible validation and risk-aware portfolio decisions.",
+        "This page summarizes my profile and ongoing work based on my public LinkedIn positioning.",
       ],
-      ethicsTitle: "Ethics / Conflict / Disclaimer",
-      ethicsItems: [
-        "Research and insights on this site are not investment advice. For personal learning and research. Investment decisions are your responsibility.",
-        "Conflict of interest: Collaboration, advisory, or ad revenue may exist. Disclosed for relevant content.",
-        "Past performance does not guarantee future returns. Mind risk management.",
+      highlightsTitle: "Career Highlights",
+      highlights: [
+        "Leads a family office with a long-term capital allocation framework.",
+        "Publishes quant research with reproducible assumptions and validation standards.",
+        "Works at the intersection of investment strategy, risk management, and research operations.",
       ],
-      contactLink: "Inquiries at",
-      contactPage: "Contact",
-      contactPageLink: "page.",
+      timelineTitle: "Experience",
+      timelineItems: {
+        current: {
+          period: "Current",
+          role: "CEO",
+          org: "Family Office",
+          desc: "Oversee strategy, risk budgeting, and portfolio governance.",
+        },
+        research: {
+          period: "Current",
+          role: "Founder",
+          org: "Jaehkim Research",
+          desc: "Build research infrastructure and publish validated strategy notes.",
+        },
+        advisory: {
+          period: "Ongoing",
+          role: "Advisor / Collaborator",
+          org: "Investment & Research Projects",
+          desc: "Support project design, evidence review, and decision frameworks.",
+        },
+      },
+      focusTitle: "Current Focus",
+      focusItems: [
+        "Systematic strategy research and validation",
+        "Risk-first portfolio construction",
+        "Process design for repeatable investment decisions",
+      ],
+      contactPrefix: "For collaboration or advisory inquiries, visit the",
+      contactPage: "Contact page",
+      contactSuffix: ".",
     },
 
     // Contact
@@ -406,24 +439,57 @@ export const translations = {
     },
     about: {
       title: "About",
-      introTitle: "소개",
-      introDesc:
-        "경력 나열보다 원칙을 중시합니다. 투자 철학, 리스크 철학, 작업 방식을 공유합니다.",
-      introItems: [
-        "재현 가능한 방법론, 공개된 가정",
-        "아웃오브샘플·워크포워드 검증 의무화",
-        "MDD·턴오버 등 리스크 지표 함께 보고",
-        "이해상충·윤리 고지 선제 공개",
+      subtitle: "프로필과 경력",
+      profile: {
+        name: "Jaehoon Kim",
+        role: "Family Office CEO · Quant Researcher",
+        location: "Seoul, South Korea",
+        photoAlt: "Jaehoon Kim 프로필 사진",
+        photoFallback: "JK",
+        photoSrc: "/uploads/jaehoon-kim-profile.jpg",
+        linkedinUrl: "https://www.linkedin.com/in/jaehoon-kim-93017b140",
+        linkedinLabel: "LinkedIn 프로필 보기",
+      },
+      summaryItems: [
+        "패밀리오피스를 운영하며 재현 가능한 퀀트 리서치와 리스크 중심 의사결정을 실무에 연결하고 있습니다.",
+        "이 페이지는 공개된 LinkedIn 포지셔닝을 바탕으로 현재 역할과 경력 요약을 정리한 프로필입니다.",
       ],
-      ethicsTitle: "Ethics / Conflict / Disclaimer",
-      ethicsItems: [
-        "본 사이트의 리서치와 인사이트는 투자 권유가 아닙니다. 개인적인 학습·연구 목적이며, 실제 투자 결정은 본인 책임입니다.",
-        "이해상충: 협업·자문·광고 수익이 있을 수 있으며, 해당 콘텐츠에는 고지합니다.",
-        "과거 수익률이 미래 수익을 보장하지 않습니다. 리스크 관리에 유의해 주세요.",
+      highlightsTitle: "핵심 경력",
+      highlights: [
+        "장기 자본 배분 프레임워크를 기반으로 패밀리오피스를 리드합니다.",
+        "가정과 검증 기준을 공개하는 퀀트 리서치를 지속 발행합니다.",
+        "투자 전략, 리스크 관리, 리서치 운영의 교차 지점에서 실행력을 높입니다.",
       ],
-      contactLink: "문의는",
-      contactPage: "Contact",
-      contactPageLink: "페이지에서 받고 있습니다.",
+      timelineTitle: "경력 요약",
+      timelineItems: {
+        current: {
+          period: "현재",
+          role: "CEO",
+          org: "Family Office",
+          desc: "전략 수립, 리스크 예산, 포트폴리오 거버넌스를 총괄합니다.",
+        },
+        research: {
+          period: "현재",
+          role: "Founder",
+          org: "Jaehkim Research",
+          desc: "리서치 인프라를 구축하고 검증 가능한 전략 노트를 발행합니다.",
+        },
+        advisory: {
+          period: "지속",
+          role: "Advisor / Collaborator",
+          org: "Investment & Research Projects",
+          desc: "프로젝트 설계, 증거 검토, 의사결정 프레임워크 고도화를 지원합니다.",
+        },
+      },
+      focusTitle: "현재 집중 영역",
+      focusItems: [
+        "시스템 전략 리서치 및 검증",
+        "리스크 우선 포트폴리오 설계",
+        "반복 가능한 투자 의사결정 프로세스 구축",
+      ],
+      contactPrefix: "협업 또는 자문 문의는",
+      contactPage: "Contact 페이지",
+      contactSuffix: "에서 받고 있습니다.",
     },
     contact: {
       title: "Contact",

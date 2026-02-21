@@ -3,11 +3,11 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "About JaehKim Research — investment philosophy, research principles, backtest methodology, validation framework, and ethics disclosure.",
+    "About Jaehoon Kim — profile, experience, and current focus in family office leadership and quant research.",
   openGraph: {
     title: "About | JaehKim Research",
     description:
-      "Investment philosophy, research principles, and validation methodology.",
+      "Profile and experience of Jaehoon Kim, including family office and quant research focus.",
   },
 };
 
