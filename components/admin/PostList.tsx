@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 interface Post {
   id: string;
@@ -15,22 +14,39 @@ interface Post {
 }
 
 export function PostList() {
-  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
   const fetchPosts = async () => {
+    setLoading(true);
+    setErrorMessage(null);
+
     try {
       const res = await fetch("/api/posts?all=true");
-      if (res.ok) {
-        const data = await res.json();
-        setPosts(data);
+
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Unauthorized. Please sign in again.");
+        }
+        throw new Error(`Request failed (${res.status})`);
       }
+
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid response format");
+      }
+
+      setPosts(data);
     } catch (error) {
+      setPosts([]);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unknown error occurred"
+      );
       console.error("Failed to fetch posts:", error);
     } finally {
       setLoading(false);
@@ -75,6 +91,21 @@ export function PostList() {
   if (loading) {
     return (
       <div className="text-center py-12 text-slate-500">Loading posts...</div>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600 mb-2">Failed to load posts</p>
+        <p className="text-sm text-slate-500 mb-4">{errorMessage}</p>
+        <button
+          onClick={fetchPosts}
+          className="inline-flex px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
     );
   }
 

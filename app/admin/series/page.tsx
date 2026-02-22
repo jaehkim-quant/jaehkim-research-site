@@ -22,14 +22,37 @@ const typeLabels: Record<string, string> = {
 export default function AdminSeriesPage() {
   const [seriesList, setSeriesList] = useState<SeriesItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchSeries = () => {
+  const fetchSeries = async () => {
     setLoading(true);
-    fetch("/api/series?all=true")
-      .then((res) => res.json())
-      .then((data) => setSeriesList(data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/series?all=true");
+
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("Unauthorized. Please sign in again.");
+        }
+        throw new Error(`Request failed (${res.status})`);
+      }
+
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid response format");
+      }
+
+      setSeriesList(data);
+    } catch (error) {
+      setSeriesList([]);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unknown error occurred"
+      );
+      console.error("Failed to fetch series:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -56,6 +79,17 @@ export default function AdminSeriesPage() {
 
       {loading ? (
         <p className="text-slate-500 py-8">Loading...</p>
+      ) : errorMessage ? (
+        <div className="py-8">
+          <p className="text-red-600 mb-2">Failed to load series</p>
+          <p className="text-sm text-slate-500 mb-4">{errorMessage}</p>
+          <button
+            onClick={fetchSeries}
+            className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       ) : seriesList.length === 0 ? (
         <p className="text-slate-500 py-8">No series yet.</p>
       ) : (

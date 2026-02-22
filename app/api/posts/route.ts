@@ -11,33 +11,46 @@ import {
 } from "@/lib/research/serializers";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const includeUnpublished = searchParams.get("all") === "true";
+  try {
+    const { searchParams } = new URL(request.url);
+    const includeUnpublished = searchParams.get("all") === "true";
 
-  const session = await getServerSession(authOptions);
-  const isAdmin = !!session;
+    const session = await getServerSession(authOptions);
+    const isAdmin = !!session;
 
-  const seriesOnly = searchParams.get("series") === "true";
+    const seriesOnly = searchParams.get("series") === "true";
 
-  const whereClause = buildPostWhereClause({
-    isAdmin,
-    includeUnpublished,
-    seriesOnly,
-  });
+    const whereClause = buildPostWhereClause({
+      isAdmin,
+      includeUnpublished,
+      seriesOnly,
+    });
 
-  const posts = await prisma.post.findMany({
-    where: whereClause,
-    orderBy: { date: "desc" },
-    select: postListSelect,
-  });
+    const posts = await prisma.post.findMany({
+      where: whereClause,
+      orderBy: { date: "desc" },
+      select: postListSelect,
+    });
 
-  const result = posts.map(serializePostListItem);
+    const result = posts.map(serializePostListItem);
 
-  return NextResponse.json(result, {
-    headers: {
-      "Cache-Control": "no-store, no-cache, must-revalidate",
-    },
-  });
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
+  } catch (error) {
+    console.error("Fetch posts error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch posts" },
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
+  }
 }
 
 export async function POST(request: Request) {

@@ -6,35 +6,45 @@ import { createRandomUrlSlug, normalizeSlug } from "@/lib/slug";
 import { serializeSeriesListItem } from "@/lib/research/serializers";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const includeUnpublished = searchParams.get("all") === "true";
+  try {
+    const { searchParams } = new URL(request.url);
+    const includeUnpublished = searchParams.get("all") === "true";
 
-  const session = await getServerSession(authOptions);
-  const isAdmin = !!session;
+    const session = await getServerSession(authOptions);
+    const isAdmin = !!session;
 
-  const typeFilter = searchParams.get("type");
+    const typeFilter = searchParams.get("type");
 
-  const where: Record<string, unknown> = {};
-  if (!(isAdmin && includeUnpublished)) {
-    where.published = true;
-  }
-  if (typeFilter) {
-    where.type = typeFilter;
-  }
+    const where: Record<string, unknown> = {};
+    if (!(isAdmin && includeUnpublished)) {
+      where.published = true;
+    }
+    if (typeFilter) {
+      where.type = typeFilter;
+    }
 
-  const seriesList = await prisma.series.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: {
-        select: { posts: isAdmin && includeUnpublished ? true : { where: { published: true } } },
+    const seriesList = await prisma.series.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: {
+            posts: isAdmin && includeUnpublished ? true : { where: { published: true } },
+          },
+        },
       },
-    },
-  });
+    });
 
-  const result = seriesList.map(serializeSeriesListItem);
+    const result = seriesList.map(serializeSeriesListItem);
 
-  return NextResponse.json(result);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Fetch series error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch series" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
