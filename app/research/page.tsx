@@ -1,28 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { ResearchLibraryClient } from "./ResearchLibraryClient";
-import type { Level } from "@/lib/research/types";
+import {
+  postListSelect,
+  serializePostListItem,
+} from "@/lib/research/serializers";
 
 export default async function ResearchLibraryPage() {
   const posts = await prisma.post.findMany({
     where: { published: true, seriesId: null },
     orderBy: { date: "desc" },
-    include: {
-      _count: { select: { likes: true, comments: true } },
-    },
+    select: postListSelect,
   });
 
-  const initialPosts = posts.map((p) => ({
-    id: p.id,
-    title: p.title,
-    slug: p.slug,
-    summary: p.summary,
-    tags: p.tags,
-    level: p.level as Level,
-    date: p.date.toISOString(),
-    viewCount: p.viewCount,
-    likeCount: p._count.likes,
-    commentCount: p._count.comments,
-  }));
+  const initialPosts = posts.map(serializePostListItem);
 
   return <ResearchLibraryClient initialPosts={initialPosts} />;
 }

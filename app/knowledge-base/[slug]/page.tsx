@@ -2,30 +2,20 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { SeriesDetailPage } from "@/components/series/SeriesDetailPage";
 import type { Level } from "@/lib/research/types";
-
-function normalizeSlug(slug: string | undefined): string {
-  if (!slug || typeof slug !== "string") return "";
-  try {
-    return decodeURIComponent(slug).normalize("NFC").trim();
-  } catch {
-    return slug.normalize("NFC").trim();
-  }
-}
+import { getSlugVariantsFromPathParam } from "@/lib/slug";
 
 export default async function KnowledgeBaseSeriesPage({
   params,
 }: {
   params: { slug: string };
 }) {
-  const normalized = normalizeSlug(params.slug);
-  const nfc = normalized.normalize("NFC");
-  const nfd = normalized.normalize("NFD");
-  const slugCandidates = nfc !== nfd ? [nfc, nfd] : [nfc];
+  const slugCandidates = getSlugVariantsFromPathParam(params.slug);
+  const primarySlug = slugCandidates[0] ?? params.slug;
 
   const series = await prisma.series.findFirst({
     where: {
       type: "knowledge-base",
-      OR: [{ id: normalized }, { slug: { in: slugCandidates } }],
+      OR: [{ id: primarySlug }, { slug: { in: slugCandidates } }],
     },
     include: {
       posts: {

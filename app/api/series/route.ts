@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { customAlphabet } from "nanoid";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const urlSafeId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12);
+import { createRandomUrlSlug, normalizeSlug } from "@/lib/slug";
+import { serializeSeriesListItem } from "@/lib/research/serializers";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -33,11 +32,7 @@ export async function GET(request: Request) {
     },
   });
 
-  const result = seriesList.map((s) => ({
-    ...s,
-    postCount: s._count.posts,
-    _count: undefined,
-  }));
+  const result = seriesList.map(serializeSeriesListItem);
 
   return NextResponse.json(result);
 }
@@ -53,16 +48,16 @@ export async function POST(request: Request) {
 
     let slug: string;
     if (body.slug && String(body.slug).trim()) {
-      slug = String(body.slug).normalize("NFC").trim();
+      slug = normalizeSlug(String(body.slug));
     } else {
-      let candidate = urlSafeId();
+      let candidate = createRandomUrlSlug();
       for (let i = 0; i < 5; i++) {
         const exists = await prisma.series.findUnique({
           where: { slug: candidate },
           select: { id: true },
         });
         if (!exists) break;
-        candidate = urlSafeId();
+        candidate = createRandomUrlSlug();
       }
       slug = candidate;
     }

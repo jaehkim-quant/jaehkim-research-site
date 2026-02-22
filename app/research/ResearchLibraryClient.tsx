@@ -1,30 +1,16 @@
 "use client";
 
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ResearchCard } from "@/components/research/ResearchCard";
 import { SearchBar } from "@/components/research/SearchBar";
 import { FilterChips } from "@/components/research/FilterChips";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { TAG_LIST, getTagLabel } from "@/lib/research/data/tagLabels";
-import {
-  getPostTitle,
-  getPostSummary,
-  getPostTags,
-} from "@/lib/research/postLocale";
+import { getPostSummary, getPostTags, getPostTitle } from "@/lib/research/postLocale";
+import type { SortMode } from "@/lib/research/libraryFilters";
 import type { Post } from "@/lib/research/types";
-import Link from "next/link";
-
-type ViewMode = "card" | "list" | "timeline";
-type SortMode = "newest" | "oldest" | "popular" | "level";
-
-const POSTS_PER_PAGE = 12;
-
-const levelOrder: Record<string, number> = {
-  "초급": 0,
-  "중급": 1,
-  "고급": 2,
-};
+import { useResearchLibraryState, type ViewMode } from "./useResearchLibraryState";
 
 const levelKeyMap: Record<string, string> = {
   "초급": "beginner",
@@ -36,119 +22,35 @@ interface ResearchLibraryClientProps {
   initialPosts?: Post[];
 }
 
+function formatMonthLabel(key: string) {
+  const [year, month] = key.split("-");
+  return `${year}년 ${Number(month)}월`;
+}
+
 function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
   const searchParams = useSearchParams();
   const tagFromUrl = searchParams.get("tag");
   const { t } = useTranslation();
-  const [search, setSearch] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [loading, setLoading] = useState(initialPosts.length === 0);
-  const [viewMode, setViewMode] = useState<ViewMode>("card");
-  const [sortMode, setSortMode] = useState<SortMode>("newest");
-  const [levelFilter, setLevelFilter] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    if (initialPosts.length > 0) return;
-    fetch("/api/posts")
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data) => setPosts(data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [initialPosts.length]);
-
-  useEffect(() => {
-    if (!tagFromUrl) return;
-    const isKey = TAG_LIST.some((x) => x.key === tagFromUrl);
-    const label = isKey ? getTagLabel(tagFromUrl) : tagFromUrl;
-    setSelectedTags((prev) => (prev.includes(label) ? prev : [label]));
-  }, [tagFromUrl]);
-
-  const filtered = useMemo(() => {
-    let result = posts;
-
-    if (levelFilter !== "all") {
-      result = result.filter((p) => p.level === levelFilter);
-    }
-
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter((p) => {
-        const title = getPostTitle(p);
-        const summary = getPostSummary(p);
-        const tags = getPostTags(p);
-        return (
-          title.toLowerCase().includes(q) ||
-          summary.toLowerCase().includes(q) ||
-          tags.some((tag) => tag.toLowerCase().includes(q))
-        );
-      });
-    }
-
-    if (selectedTags.length > 0) {
-      result = result.filter((p) => {
-        const tags = getPostTags(p);
-        return selectedTags.some((sel) => tags.includes(sel));
-      });
-    }
-
-    switch (sortMode) {
-      case "oldest":
-        result = [...result].sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        break;
-      case "popular":
-        result = [...result].sort(
-          (a, b) => (b.viewCount || 0) - (a.viewCount || 0)
-        );
-        break;
-      case "level":
-        result = [...result].sort(
-          (a, b) => (levelOrder[a.level] ?? 1) - (levelOrder[b.level] ?? 1)
-        );
-        break;
-      default:
-        result = [...result].sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-    }
-
-    return result;
-  }, [search, selectedTags, posts, sortMode, levelFilter]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, selectedTags, sortMode, levelFilter]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / POSTS_PER_PAGE));
-  const paginated = filtered.slice(
-    (currentPage - 1) * POSTS_PER_PAGE,
-    currentPage * POSTS_PER_PAGE
-  );
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  };
-
-  const timelineGroups = useMemo(() => {
-    const groups: Record<string, Post[]> = {};
-    filtered.forEach((post) => {
-      const d = new Date(post.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(post);
-    });
-    return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a));
-  }, [filtered]);
-
-  const formatMonthLabel = (key: string) => {
-    const [year, month] = key.split("-");
-    return `${year}년 ${Number(month)}월`;
-  };
+  const {
+    search,
+    setSearch,
+    selectedTags,
+    toggleTag,
+    loading,
+    viewMode,
+    setViewMode,
+    sortMode,
+    setSortMode,
+    levelFilter,
+    setLevelFilter,
+    currentPage,
+    setCurrentPage,
+    filtered,
+    totalPages,
+    paginated,
+    timelineGroups,
+  } = useResearchLibraryState(initialPosts, tagFromUrl);
 
   return (
     <div className="py-16 md:py-24 bg-white">
@@ -158,13 +60,11 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
         </h1>
         <p className="text-slate-600 mb-10 max-w-2xl">{t("research.desc")}</p>
 
-        {/* Search & Filter */}
         <div className="flex flex-col gap-6 mb-8">
           <SearchBar value={search} onChange={setSearch} />
           <FilterChips selected={selectedTags} onToggle={toggleTag} />
         </div>
 
-        {/* Level Tabs */}
         <div className="flex flex-wrap gap-2 mb-6">
           {["all", "초급", "중급", "고급"].map((lvl) => (
             <button
@@ -183,7 +83,6 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
           ))}
         </div>
 
-        {/* Toolbar: View Mode + Sort */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
             {(["card", "list", "timeline"] as ViewMode[]).map((mode) => (
@@ -218,7 +117,6 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
           </div>
         </div>
 
-        {/* Content */}
         {loading ? (
           <div className="py-16 text-center text-slate-500">
             {t("research.loading")}
@@ -228,7 +126,6 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
             {t("research.noResults")}
           </p>
         ) : viewMode === "timeline" ? (
-          /* Timeline View */
           <div className="space-y-10">
             {timelineGroups.map(([monthKey, monthPosts]) => (
               <div key={monthKey}>
@@ -244,14 +141,12 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
             ))}
           </div>
         ) : viewMode === "list" ? (
-          /* List View */
           <div className="space-y-3">
             {paginated.map((post) => (
               <ListRow key={post.id} post={post} />
             ))}
           </div>
         ) : (
-          /* Card View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginated.map((post) => (
               <ResearchCard key={post.id} post={post} />
@@ -259,7 +154,6 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
           </div>
         )}
 
-        {/* Pagination (not for timeline) */}
         {viewMode !== "timeline" && totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-12">
             <button
@@ -334,11 +228,11 @@ function ListRow({ post }: { post: Post }) {
       <div className="flex flex-col items-end gap-1 flex-shrink-0 text-xs text-slate-500">
         <span>{dateStr}</span>
         {(post.viewCount ?? 0) > 0 && (
-          <span>{post.viewCount} {t("research.views")}</span>
+          <span>
+            {post.viewCount} {t("research.views")}
+          </span>
         )}
-        {(post.likeCount ?? 0) > 0 && (
-          <span>♥ {post.likeCount}</span>
-        )}
+        {(post.likeCount ?? 0) > 0 && <span>♥ {post.likeCount}</span>}
       </div>
     </Link>
   );

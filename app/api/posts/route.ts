@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
-import { customAlphabet } from "nanoid";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-/** URL-safe unique ID (0-9, a-z). 12 chars, collision-resistant (no title-based overlap). */
-const urlSafeId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12);
+import { createRandomUrlSlug, normalizeSlug } from "@/lib/slug";
+import { buildPostWhereClause } from "@/lib/research/postQuery";
+import {
+  postListSelect,
+  serializePostListItem,
+} from "@/lib/research/serializers";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,26 +19,19 @@ export async function GET(request: Request) {
 
   const seriesOnly = searchParams.get("series") === "true";
 
-  const whereClause = isAdmin && includeUnpublished
-    ? (seriesOnly ? { seriesId: { not: null } } : {})
-    : seriesOnly
-      ? { published: true, seriesId: { not: null } }
-      : { published: true, seriesId: null };
+  const whereClause = buildPostWhereClause({
+    isAdmin,
+    includeUnpublished,
+    seriesOnly,
+  });
 
   const posts = await prisma.post.findMany({
     where: whereClause,
     orderBy: { date: "desc" },
-    include: {
-      _count: { select: { likes: true, comments: true } },
-    },
+    select: postListSelect,
   });
 
-  const result = posts.map((post) => ({
-    ...post,
-    likeCount: post._count.likes,
-    commentCount: post._count.comments,
-    _count: undefined,
-  }));
+  const result = posts.map(serializePostListItem);
 
   return NextResponse.json(result, {
     headers: {
@@ -56,17 +51,17 @@ export async function POST(request: Request) {
 
     let slug: string;
     if (body.slug && String(body.slug).trim()) {
-      slug = String(body.slug).normalize("NFC").trim();
+      slug = normalizeSlug(String(body.slug));
     } else {
       // Collision-resistant unique slug (no title-based overlap)
-      let candidate = urlSafeId();
+      let candidate = createRandomUrlSlug();
       for (let i = 0; i < 5; i++) {
         const exists = await prisma.post.findUnique({
           where: { slug: candidate },
           select: { id: true },
         });
         if (!exists) break;
-        candidate = urlSafeId();
+        candidate = createRandomUrlSlug();
       }
       slug = candidate;
     }

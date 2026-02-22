@@ -1,24 +1,35 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import {
-  getPostTitle,
-  getPostSummary,
-  getPostTags,
-} from "@/lib/research/postLocale";
 import { CommentSection } from "@/components/research/CommentSection";
 import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer";
 import type { Post } from "@/lib/research/types";
+import {
+  estimateReadTime,
+  extractToc,
+  getCommentTotal,
+} from "@/lib/research/postDetail";
+
+interface LinkedPostPreview {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+}
+
+interface PostDetailNavigation {
+  prevPost: LinkedPostPreview | null;
+  nextPost: LinkedPostPreview | null;
+  relatedPosts: LinkedPostPreview[];
+}
 
 interface PostDetailClientProps {
-  initialPost?: Post | null;
-  initialAllPosts?: Post[];
+  initialPost: Post;
+  navigation: PostDetailNavigation;
   initialComments?: Comment[];
-  /** When true, comments were loaded on the server; skip client fetch to avoid lag */
-  hasInitialCommentsFromServer?: boolean;
+  canonicalUrl: string;
 }
 
 const levelKeyMap: Record<string, string> = {
@@ -44,134 +55,54 @@ interface Comment {
   replies: Reply[];
 }
 
-interface TocItem {
-  id: string;
-  text: string;
-  level: number;
-}
-
-function toPlainText(markdown: string | undefined): string {
-  if (!markdown) return "";
-  return markdown
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`[^`]*`/g, " ")
-    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/[#>*_~`|[\]()-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function estimateReadTime(markdown: string | undefined): number {
-  const text = toPlainText(markdown);
-  if (!text) return 1;
-  const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / 200));
-}
-
-function extractToc(markdown: string | undefined): TocItem[] {
-  if (!markdown) return [];
-  const items: TocItem[] = [];
-
-  const headingMatches = Array.from(markdown.matchAll(/^(#{2,3})\s+(.+)$/gm));
-  for (const match of headingMatches) {
-    const level = match[1].length;
-    const rawText = match[2].replace(/\s+#+\s*$/, "");
-    const text = rawText
-      .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
-      .replace(/[`*_~]/g, "")
-      .trim();
-    if (!text) continue;
-    const id = text
-      .toLowerCase()
-      .replace(/[^a-z0-9가-힣]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    items.push({ id, text, level });
-  }
-
-  if (items.length > 0) return items;
-
-  const fallback = /<(h[2-3])[^>]*id="([^"]*)"[^>]*>(.*?)<\/\1>/gi;
-  let match;
-  while ((match = fallback.exec(markdown)) !== null) {
-    items.push({
-      id: match[2],
-      text: match[3].replace(/<[^>]*>/g, ""),
-      level: parseInt(match[1][1], 10),
-    });
-  }
-  return items;
-}
-
 export default function PostDetailClient({
-  initialPost = null,
-  initialAllPosts = [],
+  initialPost,
+  navigation,
   initialComments = [],
-  hasInitialCommentsFromServer = false,
-}: PostDetailClientProps = {}) {
-  const params = useParams();
-  const slug = params.slug as string;
+  canonicalUrl,
+}: PostDetailClientProps) {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
+  const viewRecordedRef = useRef(false);
 
-  const [allPosts, setAllPosts] = useState<Post[]>(initialAllPosts);
-  const [post, setPost] = useState<Post | null>(initialPost);
-  const [pageLoading, setPageLoading] = useState(!initialPost);
-  const [viewCount, setViewCount] = useState(initialPost?.viewCount ?? 0);
-  const [likeCount, setLikeCount] = useState(initialPost?.likeCount ?? 0);
+  const [viewCount, setViewCount] = useState(initialPost.viewCount ?? 0);
+  const [likeCount, setLikeCount] = useState(initialPost.likeCount ?? 0);
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [shareTooltip, setShareTooltip] = useState(false);
-  const viewRecordedRef = useRef(false);
 
   useEffect(() => {
-    if (initialPost && initialAllPosts.length > 0) return;
-    fetch("/api/posts")
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data: Post[]) => {
-        setAllPosts(data);
-        if (!initialPost) {
-          const found = data.find((p) => p.slug === slug);
-          if (found) {
-            setPost(found);
-            setViewCount(found.viewCount || 0);
-          }
-        }
-      })
-      .catch(() => {})
-      .finally(() => setPageLoading(false));
-  }, [slug, initialPost, initialAllPosts.length]);
+    viewRecordedRef.current = false;
+    setViewCount(initialPost.viewCount ?? 0);
+    setLikeCount(initialPost.likeCount ?? 0);
+    setComments(initialComments);
+  }, [initialPost, initialComments]);
 
   useEffect(() => {
-    if (!post || viewRecordedRef.current) return;
+    if (viewRecordedRef.current) return;
     viewRecordedRef.current = true;
+
     setViewCount((prev) => prev + 1);
-    fetch(`/api/posts/${post.id}/view`, { method: "POST" })
+    fetch(`/api/posts/${initialPost.id}/view`, { method: "POST" })
       .then((r) => r.json())
-      .then((d) => typeof d.viewCount === "number" && setViewCount(d.viewCount))
+      .then(
+        (d) => typeof d.viewCount === "number" && setViewCount(d.viewCount)
+      )
       .catch(() => setViewCount((prev) => Math.max(0, prev - 1)));
 
-    fetch(`/api/posts/${post.id}/like`)
+    fetch(`/api/posts/${initialPost.id}/like`)
       .then((r) => r.json())
       .then((d) => {
         setLikeCount(d.likeCount);
         setLiked(d.liked);
       })
       .catch(() => {});
-
-    // Skip comment fetch when server already sent initial data (avoids lag on first paint)
-    if (!hasInitialCommentsFromServer) {
-      fetch(`/api/posts/${post.id}/comments`)
-        .then((r) => r.json())
-        .then((d) => setComments(Array.isArray(d) ? d : []))
-        .catch(() => {});
-    }
-  }, [post, hasInitialCommentsFromServer]);
+  }, [initialPost.id]);
 
   const handleLike = async () => {
-    if (!post) return;
-    const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
+    const res = await fetch(`/api/posts/${initialPost.id}/like`, {
+      method: "POST",
+    });
     if (res.ok) {
       const d = await res.json();
       setLikeCount(d.likeCount);
@@ -194,55 +125,29 @@ export default function PostDetailClient({
   };
 
   const handleShare = async () => {
-    await navigator.clipboard.writeText(window.location.href);
+    const shareUrl =
+      typeof window !== "undefined" ? window.location.href : canonicalUrl;
+    await navigator.clipboard.writeText(shareUrl);
     setShareTooltip(true);
     setTimeout(() => setShareTooltip(false), 2000);
   };
 
-  if (pageLoading) {
-    return (
-      <div className="py-16 max-w-content mx-auto px-6">
-        <p className="text-slate-500">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!post) {
-    return (
-      <div className="py-16 max-w-content mx-auto px-6">
-        <p className="text-slate-600">Not found.</p>
-      </div>
-    );
-  }
-
-  const levelKey = levelKeyMap[post.level as string] ?? "beginner";
-  const title = getPostTitle(post);
-  const summary = getPostSummary(post);
-  const tags = getPostTags(post);
-  const content = post.content;
-  const readTime = estimateReadTime(content);
-  const toc = extractToc(content);
-
-  const sortedPosts = [...allPosts].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  const levelKey = levelKeyMap[initialPost.level as string] ?? "beginner";
+  const title = initialPost.title;
+  const summary = initialPost.summary;
+  const tags = initialPost.tags;
+  const content = initialPost.content;
+  const readTime = useMemo(() => estimateReadTime(content), [content]);
+  const toc = useMemo(() => extractToc(content), [content]);
+  const totalCommentCount = useMemo(
+    () => getCommentTotal(initialPost.commentCount, comments),
+    [initialPost.commentCount, comments]
   );
-  const currentIdx = sortedPosts.findIndex((p) => p.id === post.id);
-  const prevPost = currentIdx > 0 ? sortedPosts[currentIdx - 1] : null;
-  const nextPost =
-    currentIdx < sortedPosts.length - 1 ? sortedPosts[currentIdx + 1] : null;
-
-  const relatedPosts = allPosts
-    .filter(
-      (p) =>
-        p.id !== post.id &&
-        p.tags.some((tag) => post.tags.includes(tag))
-    )
-    .slice(0, 3);
 
   const dateStr =
-    typeof post.date === "string" && post.date.includes("T")
-      ? new Date(post.date).toLocaleDateString()
-      : post.date;
+    typeof initialPost.date === "string" && initialPost.date.includes("T")
+      ? new Date(initialPost.date).toLocaleDateString()
+      : initialPost.date;
 
   return (
     <article className="py-16 md:py-24 bg-white">
@@ -258,7 +163,6 @@ export default function PostDetailClient({
           {title}
         </h1>
 
-        {/* Meta row */}
         <div className="flex flex-wrap items-center gap-3 mb-2">
           <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
             {t(`levels.${levelKey}`)}
@@ -274,21 +178,20 @@ export default function PostDetailClient({
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-8">
           <span>{dateStr}</span>
-          <span>{readTime} {t("research.minRead")}</span>
-          <span>{viewCount} {t("research.views")}</span>
+          <span>
+            {readTime} {t("research.minRead")}
+          </span>
+          <span>
+            {viewCount} {t("research.views")}
+          </span>
           <span>♥ {likeCount}</span>
           <span>
-            {comments.length > 0
-              ? comments.length + comments.reduce((a, c) => a + (c.replies?.length || 0), 0)
-              : (post.commentCount ?? 0)}{" "}
-            {t("research.comments")}
+            {totalCommentCount} {t("research.comments")}
           </span>
         </div>
 
         <div className="flex gap-8">
-          {/* Main content */}
           <div className="flex-1 min-w-0">
-            {/* Summary */}
             <div className="rounded-xl border border-slate-200 p-6 bg-slate-50 mb-6">
               <h2 className="text-lg font-semibold text-slate-900 mb-2">
                 {t("research.summaryTab")}
@@ -296,16 +199,15 @@ export default function PostDetailClient({
               <p className="text-slate-600">{summary}</p>
             </div>
 
-            {/* Deep Dive */}
             {content ? (
-              <div className="rounded-xl border border-slate-200 p-6 mb-8" ref={contentRef}>
+              <div
+                className="rounded-xl border border-slate-200 p-6 mb-8"
+                ref={contentRef}
+              >
                 <h2 className="text-lg font-semibold text-slate-900 mb-4">
                   {t("research.deepDiveTab")}
                 </h2>
-                <MarkdownRenderer
-                  markdown={content}
-                  className="text-slate-700"
-                />
+                <MarkdownRenderer markdown={content} className="text-slate-700" />
               </div>
             ) : (
               <div className="rounded-xl border border-slate-200 p-6 mb-8">
@@ -318,7 +220,6 @@ export default function PostDetailClient({
               </div>
             )}
 
-            {/* Like + Share bar */}
             <div className="flex items-center gap-4 py-6 border-t border-b border-slate-200 mb-8">
               <button
                 onClick={handleLike}
@@ -349,7 +250,9 @@ export default function PostDetailClient({
               </div>
 
               <a
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}&text=${encodeURIComponent(title)}`}
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(canonicalUrl)}&text=${encodeURIComponent(
+                  title
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium"
@@ -358,7 +261,9 @@ export default function PostDetailClient({
               </a>
 
               <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                  canonicalUrl
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium"
@@ -367,33 +272,32 @@ export default function PostDetailClient({
               </a>
             </div>
 
-            {/* Prev / Next */}
             <div className="grid grid-cols-2 gap-4 mb-12">
-              {prevPost ? (
+              {navigation.prevPost ? (
                 <Link
-                  href={`/research/${prevPost.slug}`}
+                  href={`/research/${navigation.prevPost.slug}`}
                   className="p-4 rounded-lg border border-slate-200 hover:border-accent-orange/50 transition-colors"
                 >
                   <span className="text-xs text-slate-500">
                     ← {t("research.prevPost")}
                   </span>
                   <p className="text-sm font-medium text-slate-900 mt-1 line-clamp-1">
-                    {getPostTitle(prevPost)}
+                    {navigation.prevPost.title}
                   </p>
                 </Link>
               ) : (
                 <div />
               )}
-              {nextPost ? (
+              {navigation.nextPost ? (
                 <Link
-                  href={`/research/${nextPost.slug}`}
+                  href={`/research/${navigation.nextPost.slug}`}
                   className="p-4 rounded-lg border border-slate-200 hover:border-accent-orange/50 transition-colors text-right"
                 >
                   <span className="text-xs text-slate-500">
                     {t("research.nextPost")} →
                   </span>
                   <p className="text-sm font-medium text-slate-900 mt-1 line-clamp-1">
-                    {getPostTitle(nextPost)}
+                    {navigation.nextPost.title}
                   </p>
                 </Link>
               ) : (
@@ -401,24 +305,23 @@ export default function PostDetailClient({
               )}
             </div>
 
-            {/* Related Posts */}
-            {relatedPosts.length > 0 && (
+            {navigation.relatedPosts.length > 0 && (
               <div className="mb-12">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">
                   {t("research.relatedPosts")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {relatedPosts.map((rp) => (
+                  {navigation.relatedPosts.map((rp) => (
                     <Link
                       key={rp.id}
                       href={`/research/${rp.slug}`}
                       className="p-4 rounded-lg border border-slate-200 hover:border-accent-orange/50 transition-colors"
                     >
                       <h4 className="text-sm font-semibold text-slate-900 mb-1 line-clamp-1">
-                        {getPostTitle(rp)}
+                        {rp.title}
                       </h4>
                       <p className="text-xs text-slate-600 line-clamp-2">
-                        {getPostSummary(rp)}
+                        {rp.summary}
                       </p>
                     </Link>
                   ))}
@@ -426,15 +329,13 @@ export default function PostDetailClient({
               </div>
             )}
 
-            {/* Comments */}
             <CommentSection
-              postId={post.id}
+              postId={initialPost.id}
               comments={comments}
               onCommentAdded={handleCommentAdded}
             />
           </div>
 
-          {/* Sidebar: TOC (desktop only) */}
           {toc.length > 0 && (
             <aside className="hidden lg:block w-56 flex-shrink-0">
               <div className="sticky top-24">

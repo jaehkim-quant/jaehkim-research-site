@@ -1,25 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PostEditor } from "./PostEditor";
-
-const SLUG_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
-const SLUG_LENGTH = 12;
-
-function createRandomSlug() {
-  const bytes = new Uint8Array(SLUG_LENGTH);
-  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-    crypto.getRandomValues(bytes);
-  } else {
-    for (let i = 0; i < bytes.length; i += 1) {
-      bytes[i] = Math.floor(Math.random() * 256);
-    }
-  }
-  return Array.from(bytes, (b) => SLUG_ALPHABET[b % SLUG_ALPHABET.length]).join(
-    ""
-  );
-}
+import { useAutoSlug } from "./hooks/useAutoSlug";
+import { usePostDraft } from "./hooks/usePostDraft";
+import { useSeriesOptions } from "./hooks/useSeriesOptions";
 
 interface PostData {
   id?: string;
@@ -35,11 +21,6 @@ interface PostData {
   seriesOrder: string;
 }
 
-interface SeriesOption {
-  id: string;
-  title: string;
-}
-
 interface PostFormProps {
   initialData?: PostData;
   mode: "create" | "edit";
@@ -49,21 +30,12 @@ export function PostForm({ initialData, mode }: PostFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [draftRestored, setDraftRestored] = useState(false);
-  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
-  const [slugGenerating, setSlugGenerating] = useState(false);
-  const [seriesOptions, setSeriesOptions] = useState<SeriesOption[]>([]);
+  const seriesOptions = useSeriesOptions();
   const draftStorageKey =
     mode === "edit" && initialData?.id
       ? `post-form-draft:${initialData.id}`
       : "post-form-draft:new";
-
-  useEffect(() => {
-    fetch("/api/series?all=true")
-      .then((res) => res.json())
-      .then((data) => setSeriesOptions(data))
-      .catch(() => {});
-  }, []);
+  const { slugGenerating, generateSlug } = useAutoSlug("/api/posts?all=true");
 
   const [form, setForm] = useState<PostData>({
     title: initialData?.title || "",
@@ -80,71 +52,33 @@ export function PostForm({ initialData, mode }: PostFormProps) {
 
   const [tagsInput, setTagsInput] = useState(form.tags.join(", "));
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(draftStorageKey);
-      if (!raw) return;
-      const draft = JSON.parse(raw) as {
-        form?: PostData;
-        tagsInput?: string;
-        savedAt?: string;
-      };
-      if (!draft.form) return;
-      setForm((prev) => ({ ...prev, ...draft.form }));
-      setTagsInput(
-        typeof draft.tagsInput === "string"
-          ? draft.tagsInput
-          : (draft.form.tags || []).join(", ")
-      );
-      setDraftRestored(true);
-      if (draft.savedAt) setLastSavedAt(draft.savedAt);
-    } catch {
-      // Ignore malformed draft payloads
-    }
-  }, [draftStorageKey]);
+  const handleRestoreDraft = useCallback(
+    ({
+      form: restoredForm,
+      tagsInput: restoredTagsInput,
+      savedAt: _savedAt,
+    }: {
+      form: Partial<PostData>;
+      tagsInput: string;
+      savedAt: string | null;
+    }) => {
+      setForm((prev) => ({ ...prev, ...restoredForm }));
+      setTagsInput(restoredTagsInput);
+    },
+    []
+  );
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        const savedAt = new Date().toISOString();
-        localStorage.setItem(
-          draftStorageKey,
-          JSON.stringify({ form, tagsInput, savedAt })
-        );
-        setLastSavedAt(savedAt);
-      } catch {
-        // Ignore storage failures (private mode/quota)
-      }
-    }, 700);
-    return () => clearTimeout(timer);
-  }, [form, tagsInput, draftStorageKey]);
+  const { draftRestored, lastSavedAt, clearDraft } = usePostDraft({
+    storageKey: draftStorageKey,
+    form,
+    tagsInput,
+    onRestore: handleRestoreDraft,
+  });
 
-  const generateSlug = async () => {
-    setSlugGenerating(true);
+  const handleAutoSlug = async () => {
     setError("");
-
-    try {
-      const res = await fetch("/api/posts?all=true");
-      if (!res.ok) throw new Error();
-      const posts = (await res.json()) as Array<{ slug?: string }>;
-      const existingSlugs = new Set(
-        posts
-          .map((p) => (typeof p.slug === "string" ? p.slug : ""))
-          .filter(Boolean)
-      );
-
-      let candidate = createRandomSlug();
-      for (let i = 0; i < 8; i += 1) {
-        if (!existingSlugs.has(candidate)) break;
-        candidate = createRandomSlug();
-      }
-      setForm((prev) => ({ ...prev, slug: candidate }));
-    } catch {
-      // Fallback: still generate collision-resistant random slug locally.
-      setForm((prev) => ({ ...prev, slug: createRandomSlug() }));
-    } finally {
-      setSlugGenerating(false);
-    }
+    const slug = await generateSlug();
+    setForm((prev) => ({ ...prev, slug }));
   };
 
   const handleSave = async (publish: boolean) => {
@@ -191,7 +125,7 @@ export function PostForm({ initialData, mode }: PostFormProps) {
         throw new Error(data.error || "Save failed");
       }
 
-      localStorage.removeItem(draftStorageKey);
+      clearDraft();
       router.push("/admin");
       router.refresh();
     } catch (err) {
@@ -235,7 +169,7 @@ export function PostForm({ initialData, mode }: PostFormProps) {
           />
           <button
             type="button"
-            onClick={generateSlug}
+            onClick={handleAutoSlug}
             disabled={slugGenerating}
             className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 disabled:opacity-50 transition-colors"
           >

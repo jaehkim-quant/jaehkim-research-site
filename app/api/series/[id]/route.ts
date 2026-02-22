@@ -2,28 +2,18 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-function normalizeSlug(value: string | undefined): string {
-  if (!value || typeof value !== "string") return "";
-  try {
-    return decodeURIComponent(value).normalize("NFC").trim();
-  } catch {
-    return value.normalize("NFC").trim();
-  }
-}
+import { getSlugVariantsFromPathParam, normalizeSlug } from "@/lib/slug";
 
 export async function GET(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
-  const normalized = normalizeSlug(params.id);
-  const nfc = normalized.normalize("NFC");
-  const nfd = normalized.normalize("NFD");
-  const slugCandidates = nfc !== nfd ? [nfc, nfd] : [nfc];
+  const slugCandidates = getSlugVariantsFromPathParam(params.id);
+  const primarySlug = slugCandidates[0] ?? params.id;
 
   const series = await prisma.series.findFirst({
     where: {
-      OR: [{ id: normalized }, { slug: { in: slugCandidates } }],
+      OR: [{ id: primarySlug }, { slug: { in: slugCandidates } }],
     },
     include: {
       posts: {
@@ -70,7 +60,7 @@ export async function PUT(
         title: body.title,
         slug:
           body.slug != null
-            ? String(body.slug).normalize("NFC").trim()
+            ? normalizeSlug(String(body.slug))
             : undefined,
         description: body.description ?? null,
         type: body.type || undefined,

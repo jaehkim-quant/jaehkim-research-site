@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { normalizeSlug } from "@/lib/slug";
 
 export async function GET(
   request: Request,
@@ -33,7 +34,7 @@ export async function PUT(
 
     const slugUpdate =
       body.slug != null
-        ? { slug: String(body.slug).normalize("NFC").trim() }
+        ? { slug: normalizeSlug(String(body.slug)) }
         : {};
 
     const post = await prisma.post.update({

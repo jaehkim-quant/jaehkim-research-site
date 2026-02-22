@@ -1,30 +1,19 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getSlugVariants, normalizeSlugFromPathParam } from "@/lib/slug";
+import { pickRelatedPosts } from "@/lib/research/postDetail";
 import PostDetailClient from "./PostDetailClient";
 import type { Level } from "@/lib/research/types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jaehkim-research.vercel.app";
-
-/** Normalize slug for lookup: decode and NFC so URL and DB match (e.g. Korean slugs). */
-function normalizeSlug(slug: string | undefined): string {
-  if (!slug || typeof slug !== "string") return "";
-  try {
-    const decoded = decodeURIComponent(slug);
-    return decoded.normalize("NFC").trim();
-  } catch {
-    return slug.normalize("NFC").trim();
-  }
-}
 
 /** Find post by slug; tries NFC first, then NFD for existing DB rows. */
 async function findPostBySlug(
   slug: string,
   options?: { select?: object; include?: object }
 ) {
-  const nfc = slug.normalize("NFC");
-  const nfd = slug.normalize("NFD");
-  const slugs = nfc !== nfd ? [nfc, nfd] : [nfc];
+  const slugs = getSlugVariants(slug);
   return prisma.post.findFirst({
     where: { slug: { in: slugs } },
     ...options,
@@ -36,7 +25,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const slug = normalizeSlug(params.slug);
+  const slug = normalizeSlugFromPathParam(params.slug);
   const post = await findPostBySlug(slug, {
     select: {
       title: true,
@@ -83,43 +72,86 @@ export default async function ResearchDetailPage({
 }: {
   params: { slug: string };
 }) {
-  const slug = normalizeSlug(params.slug);
-  const [post, allPosts, comments] = await Promise.all([
-    findPostBySlug(slug, {
+  const slug = normalizeSlugFromPathParam(params.slug);
+  const post = await findPostBySlug(slug, {
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      summary: true,
+      content: true,
+      tags: true,
+      level: true,
+      date: true,
+      updatedAt: true,
+      viewCount: true,
+      seriesId: true,
+      seriesOrder: true,
+      _count: { select: { likes: true, comments: true } },
+    },
+  });
+
+  if (!post) notFound();
+
+  const [comments, prevPost, nextPost, relatedCandidates] = await Promise.all([
+    prisma.comment.findMany({
+      where: { postId: post.id, parentId: null },
+      orderBy: { createdAt: "desc" },
       include: {
-        _count: { select: { likes: true, comments: true } },
+        replies: { orderBy: { createdAt: "asc" } },
       },
     }),
-    prisma.post.findMany({
-      where: { published: true, seriesId: null },
+    prisma.post.findFirst({
+      where: {
+        published: true,
+        seriesId: null,
+        date: { lt: post.date },
+      },
       orderBy: { date: "desc" },
       select: {
         id: true,
-        title: true,
         slug: true,
+        title: true,
         summary: true,
-        tags: true,
-        level: true,
-        date: true,
-        viewCount: true,
-        seriesId: true,
-        seriesOrder: true,
       },
     }),
-    findPostBySlug(slug, { select: { id: true } }).then((p) =>
-      !p
-        ? []
-        : prisma.comment.findMany({
-            where: { postId: p.id, parentId: null },
-            orderBy: { createdAt: "desc" },
-            include: {
-              replies: { orderBy: { createdAt: "asc" } },
-            },
-          })
-    ),
+    prisma.post.findFirst({
+      where: {
+        published: true,
+        seriesId: null,
+        date: { gt: post.date },
+      },
+      orderBy: { date: "asc" },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        summary: true,
+      },
+    }),
+    post.tags.length === 0
+      ? Promise.resolve([])
+      : prisma.post.findMany({
+          where: {
+            published: true,
+            seriesId: null,
+            id: { not: post.id },
+            tags: { hasSome: post.tags },
+          },
+          orderBy: { date: "desc" },
+          take: 12,
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            summary: true,
+            tags: true,
+            date: true,
+          },
+        }),
   ]);
 
-  if (!post) notFound();
+  const relatedPosts = pickRelatedPosts(post.tags, relatedCandidates);
 
   const initialComments = (comments ?? []).map((c) => ({
     id: c.id,
@@ -155,7 +187,7 @@ export default async function ResearchDetailPage({
     dateModified: post.updatedAt?.toISOString(),
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${SITE_URL}/research/${slug}`,
+      "@id": `${SITE_URL}/research/${post.slug}`,
     },
     keywords: post.tags.join(", "),
     articleSection: "Research",
@@ -182,17 +214,6 @@ export default async function ResearchDetailPage({
     seriesOrder: post.seriesOrder ?? undefined,
   };
 
-  const initialAllPosts = allPosts.map((p) => ({
-    id: p.id,
-    title: p.title,
-    slug: p.slug,
-    summary: p.summary,
-    tags: p.tags,
-    level: p.level as Level,
-    date: p.date.toISOString(),
-    viewCount: p.viewCount,
-  }));
-
   return (
     <>
       {jsonLd && (
@@ -203,9 +224,27 @@ export default async function ResearchDetailPage({
       )}
       <PostDetailClient
         initialPost={initialPost}
-        initialAllPosts={initialAllPosts}
+        navigation={{
+          prevPost: prevPost
+            ? {
+                id: prevPost.id,
+                slug: prevPost.slug,
+                title: prevPost.title,
+                summary: prevPost.summary,
+              }
+            : null,
+          nextPost: nextPost
+            ? {
+                id: nextPost.id,
+                slug: nextPost.slug,
+                title: nextPost.title,
+                summary: nextPost.summary,
+              }
+            : null,
+          relatedPosts,
+        }}
         initialComments={initialComments}
-        hasInitialCommentsFromServer
+        canonicalUrl={`${SITE_URL}/research/${post.slug}`}
       />
     </>
   );
