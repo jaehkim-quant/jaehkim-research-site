@@ -14,9 +14,14 @@ const levelKeyMap: Record<string, string> = {
 interface ResearchCardProps {
   post: Post;
   variant?: "default" | "compact";
+  showSeriesBadge?: boolean;
 }
 
-export function ResearchCard({ post, variant = "default" }: ResearchCardProps) {
+export function ResearchCard({
+  post,
+  variant = "default",
+  showSeriesBadge = false,
+}: ResearchCardProps) {
   const { t } = useTranslation();
   const levelKey = levelKeyMap[post.level] ?? "beginner";
   const title = getPostTitle(post);
@@ -38,6 +43,11 @@ export function ResearchCard({ post, variant = "default" }: ResearchCardProps) {
         <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
           {t(`levels.${levelKey}`)}
         </span>
+        {showSeriesBadge && post.seriesId && (
+          <span className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 font-medium">
+            {t("research.seriesBadge")}
+          </span>
+        )}
         {tags.slice(0, 3).map((tag) => (
           <span
             key={tag}
@@ -60,7 +70,12 @@ export function ResearchCard({ post, variant = "default" }: ResearchCardProps) {
           )}
         </div>
         {variant === "default" && post.updatedAt && (
-          <span>{t("common.updated")}: {typeof post.updatedAt === "string" && post.updatedAt.includes("T") ? new Date(post.updatedAt).toLocaleDateString() : post.updatedAt}</span>
+          <span>
+            {t("common.updated")}:{" "}
+            {typeof post.updatedAt === "string" && post.updatedAt.includes("T")
+              ? new Date(post.updatedAt).toLocaleDateString()
+              : post.updatedAt}
+          </span>
         )}
       </div>
     </Link>

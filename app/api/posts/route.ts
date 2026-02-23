@@ -6,9 +6,24 @@ import { prisma } from "@/lib/prisma";
 import { createRandomUrlSlug, normalizeSlug } from "@/lib/slug";
 import { buildPostWhereClause } from "@/lib/research/postQuery";
 import {
+  getSeriesDetailPath,
+  revalidateSeriesPublicPaths,
+} from "@/lib/research/revalidatePublicPaths";
+import {
   postListSelect,
   serializePostListItem,
 } from "@/lib/research/serializers";
+
+async function getSeriesDetailPathById(seriesId: string | null | undefined) {
+  if (!seriesId) return null;
+
+  const series = await prisma.series.findUnique({
+    where: { id: seriesId },
+    select: { type: true, slug: true },
+  });
+
+  return getSeriesDetailPath(series?.type, series?.slug);
+}
 
 export async function GET(request: Request) {
   try {
@@ -98,6 +113,10 @@ export async function POST(request: Request) {
     revalidatePath("/research");
     revalidatePath("/sitemap.xml");
     if (post.published) revalidatePath(`/research/${post.slug}`);
+    if (post.seriesId) {
+      const seriesDetailPath = await getSeriesDetailPathById(post.seriesId);
+      revalidateSeriesPublicPaths([seriesDetailPath]);
+    }
 
     return NextResponse.json(post, { status: 201 });
   } catch (error) {

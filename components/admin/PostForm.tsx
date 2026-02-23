@@ -266,7 +266,7 @@ export function PostForm({ initialData, mode }: PostFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
-            Series (Knowledge Base)
+            Series (Optional)
           </label>
           <select
             value={form.seriesId}
@@ -275,13 +275,16 @@ export function PostForm({ initialData, mode }: PostFormProps) {
             }
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
-            <option value="">None (Research Library only)</option>
+            <option value="">None (No series)</option>
             {seriesOptions.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.title}
               </option>
             ))}
           </select>
+          <p className="mt-1 text-xs text-slate-500">
+            Posts assigned to a series still appear in Research Library.
+          </p>
         </div>
         {form.seriesId && (
           <div>

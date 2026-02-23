@@ -23,7 +23,7 @@ const websiteJsonLd = {
 
 export default async function HomePage() {
   const posts = await prisma.post.findMany({
-    where: { published: true, seriesId: null },
+    where: { published: true },
     orderBy: { date: "desc" },
     take: 10,
     include: {

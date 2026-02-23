@@ -19,5 +19,5 @@ export function buildPostWhereClause({
     return { published: true, seriesId: { not: null } };
   }
 
-  return { published: true, seriesId: null };
+  return { published: true };
 }

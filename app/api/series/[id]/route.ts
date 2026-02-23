@@ -1,29 +1,12 @@
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSlugVariantsFromPathParam, normalizeSlug } from "@/lib/slug";
-
-const PUBLIC_SERIES_LIST_PATHS = ["/knowledge-base", "/book-notes"] as const;
-
-function getSeriesDetailPath(type: unknown, slug: unknown): string | null {
-  if (typeof slug !== "string" || !slug) return null;
-  if (type === "knowledge-base" || type === "book-notes") {
-    return `/${type}/${slug}`;
-  }
-  return null;
-}
-
-function revalidateSeriesPublicPaths(detailPaths: Array<string | null>) {
-  const paths = new Set<string>([...PUBLIC_SERIES_LIST_PATHS, "/sitemap.xml"]);
-  for (const detailPath of detailPaths) {
-    if (detailPath) paths.add(detailPath);
-  }
-  paths.forEach((path) => {
-    revalidatePath(path);
-  });
-}
+import {
+  getSeriesDetailPath,
+  revalidateSeriesPublicPaths,
+} from "@/lib/research/revalidatePublicPaths";
 
 export async function GET(
   _request: Request,
@@ -85,9 +68,7 @@ export async function PUT(
       data: {
         title: body.title,
         slug:
-          body.slug != null
-            ? normalizeSlug(String(body.slug))
-            : undefined,
+          body.slug != null ? normalizeSlug(String(body.slug)) : undefined,
         description: body.description ?? null,
         type: body.type || undefined,
         level: body.level || "중급",

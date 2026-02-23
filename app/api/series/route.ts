@@ -1,30 +1,13 @@
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createRandomUrlSlug, normalizeSlug } from "@/lib/slug";
+import {
+  getSeriesDetailPath,
+  revalidateSeriesPublicPaths,
+} from "@/lib/research/revalidatePublicPaths";
 import { serializeSeriesListItem } from "@/lib/research/serializers";
-
-const PUBLIC_SERIES_LIST_PATHS = ["/knowledge-base", "/book-notes"] as const;
-
-function getSeriesDetailPath(type: unknown, slug: unknown): string | null {
-  if (typeof slug !== "string" || !slug) return null;
-  if (type === "knowledge-base" || type === "book-notes") {
-    return `/${type}/${slug}`;
-  }
-  return null;
-}
-
-function revalidateSeriesPublicPaths(detailPaths: Array<string | null>) {
-  const paths = new Set<string>([...PUBLIC_SERIES_LIST_PATHS, "/sitemap.xml"]);
-  for (const detailPath of detailPaths) {
-    if (detailPath) paths.add(detailPath);
-  }
-  paths.forEach((path) => {
-    revalidatePath(path);
-  });
-}
 
 export async function GET(request: Request) {
   try {
@@ -50,7 +33,10 @@ export async function GET(request: Request) {
       include: {
         _count: {
           select: {
-            posts: isAdmin && includeUnpublished ? true : { where: { published: true } },
+            posts:
+              isAdmin && includeUnpublished
+                ? true
+                : { where: { published: true } },
           },
         },
       },
@@ -109,6 +95,9 @@ export async function POST(request: Request) {
     return NextResponse.json(series, { status: 201 });
   } catch (error) {
     console.error("Create series error:", error);
-    return NextResponse.json({ error: "Failed to create series" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create series" },
+      { status: 500 }
+    );
   }
 }

@@ -7,7 +7,7 @@ import {
 
 export default async function ResearchLibraryPage() {
   const posts = await prisma.post.findMany({
-    where: { published: true, seriesId: null },
+    where: { published: true },
     orderBy: { date: "desc" },
     select: postListSelect,
   });

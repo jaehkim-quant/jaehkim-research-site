@@ -149,7 +149,7 @@ function ResearchContent({ initialPosts = [] }: { initialPosts: Post[] }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginated.map((post) => (
-              <ResearchCard key={post.id} post={post} />
+              <ResearchCard key={post.id} post={post} showSeriesBadge />
             ))}
           </div>
         )}
@@ -215,6 +215,11 @@ function ListRow({ post }: { post: Post }) {
           <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600">
             {t(`levels.${levelKey}`)}
           </span>
+          {post.seriesId && (
+            <span className="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">
+              {t("research.seriesBadge")}
+            </span>
+          )}
           {tags.slice(0, 3).map((tag) => (
             <span
               key={tag}

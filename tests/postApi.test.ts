@@ -16,14 +16,14 @@ describe("post API helpers", () => {
     ).toEqual({});
   });
 
-  it("builds public where clause for non-series posts", () => {
+  it("builds public where clause for all published posts", () => {
     expect(
       buildPostWhereClause({
         isAdmin: false,
         includeUnpublished: false,
         seriesOnly: false,
       })
-    ).toEqual({ published: true, seriesId: null });
+    ).toEqual({ published: true });
   });
 
   it("builds series-only where clause", () => {

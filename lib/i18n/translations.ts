@@ -79,6 +79,7 @@ export const translations = {
       views: "views",
       likes: "likes",
       comments: "comments",
+      seriesBadge: "Series",
       minRead: "min read",
       // Share
       share: "Share",
@@ -355,6 +356,7 @@ export const translations = {
       views: "조회",
       likes: "좋아요",
       comments: "댓글",
+      seriesBadge: "시리즈",
       minRead: "분 읽기",
       share: "공유",
       copyLink: "링크 복사",

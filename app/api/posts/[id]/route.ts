@@ -4,6 +4,27 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { normalizeSlug } from "@/lib/slug";
+import {
+  getSeriesDetailPath,
+  revalidateSeriesPublicPaths,
+} from "@/lib/research/revalidatePublicPaths";
+
+async function revalidateSeriesPathsByIds(seriesIds: Array<string | null | undefined>) {
+  const uniqueIds = Array.from(
+    new Set(seriesIds.filter((id): id is string => Boolean(id)))
+  );
+
+  if (uniqueIds.length === 0) return;
+
+  const seriesList = await prisma.series.findMany({
+    where: { id: { in: uniqueIds } },
+    select: { type: true, slug: true },
+  });
+
+  revalidateSeriesPublicPaths(
+    seriesList.map((series) => getSeriesDetailPath(series.type, series.slug))
+  );
+}
 
 export async function GET(
   request: Request,
@@ -31,6 +52,10 @@ export async function PUT(
 
   try {
     const body = await request.json();
+    const previousPost = await prisma.post.findUnique({
+      where: { id: params.id },
+      select: { seriesId: true },
+    });
 
     const slugUpdate =
       body.slug != null
@@ -48,8 +73,14 @@ export async function PUT(
         level: body.level ?? undefined,
         published: body.published ?? undefined,
         date: body.date ? new Date(body.date) : undefined,
-        seriesId: body.seriesId !== undefined ? (body.seriesId || null) : undefined,
-        seriesOrder: body.seriesOrder !== undefined ? (body.seriesOrder != null ? Number(body.seriesOrder) : null) : undefined,
+        seriesId:
+          body.seriesId !== undefined ? (body.seriesId || null) : undefined,
+        seriesOrder:
+          body.seriesOrder !== undefined
+            ? body.seriesOrder != null
+              ? Number(body.seriesOrder)
+              : null
+            : undefined,
       },
     });
 
@@ -57,6 +88,7 @@ export async function PUT(
     revalidatePath("/research");
     revalidatePath("/sitemap.xml");
     revalidatePath(`/research/${post.slug}`);
+    await revalidateSeriesPathsByIds([previousPost?.seriesId, post.seriesId]);
 
     return NextResponse.json(post);
   } catch (error) {
@@ -80,7 +112,7 @@ export async function DELETE(
   try {
     const post = await prisma.post.findUnique({
       where: { id: params.id },
-      select: { slug: true },
+      select: { slug: true, seriesId: true },
     });
     await prisma.post.delete({
       where: { id: params.id },
@@ -89,6 +121,7 @@ export async function DELETE(
     revalidatePath("/research");
     revalidatePath("/sitemap.xml");
     if (post?.slug) revalidatePath(`/research/${post.slug}`);
+    await revalidateSeriesPathsByIds([post?.seriesId]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
