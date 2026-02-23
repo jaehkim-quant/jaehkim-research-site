@@ -27,6 +27,13 @@ describe("post detail utilities", () => {
     expect(toc[1]).toMatchObject({ text: "Section B", level: 3 });
   });
 
+  it("unescapes markdown punctuation in TOC headings", () => {
+    const markdown = "## (1) TGA \\|= 재무부 금고 · \\[소유권] 예시\n";
+    const toc = extractToc(markdown);
+    expect(toc).toHaveLength(1);
+    expect(toc[0]?.text).toBe("(1) TGA |= 재무부 금고 · [소유권] 예시");
+  });
+
   it("falls back to HTML heading parsing for TOC", () => {
     const html = '<h2 id="sec-1">Section 1</h2><h3 id="sec-2">Section 2</h3>';
     const toc = extractToc(html);

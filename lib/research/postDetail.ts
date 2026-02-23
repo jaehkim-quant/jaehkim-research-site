@@ -20,6 +20,15 @@ export interface RelatedPostPreview {
   summary: string;
 }
 
+function normalizeTocHeadingText(rawText: string) {
+  return rawText
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+    // Unescape markdown-escaped punctuation so TOC matches visible heading text.
+    .replace(/\\([\\`*_{}\[\]()#+\-.!|<>])/g, "$1")
+    .replace(/[`*_~]/g, "")
+    .trim();
+}
+
 export function toPlainText(markdown: string | undefined): string {
   if (!markdown) return "";
   return markdown
@@ -48,10 +57,7 @@ export function extractToc(markdown: string | undefined): TocItem[] {
   for (const match of headingMatches) {
     const level = match[1].length;
     const rawText = match[2].replace(/\s+#+\s*$/, "");
-    const text = rawText
-      .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
-      .replace(/[`*_~]/g, "")
-      .trim();
+    const text = normalizeTocHeadingText(rawText);
     if (!text) continue;
     const id = text
       .toLowerCase()
