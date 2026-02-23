@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { getDefaultEmailFrom, sendEmail } from "@/lib/email/provider";
 
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -61,9 +61,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: "JaehKim Research <onboarding@resend.dev>",
+    const emailResult = await sendEmail({
+      from: getDefaultEmailFrom(),
       to: adminEmail,
       subject: "Admin Login OTP Code",
       html: `
@@ -77,6 +76,9 @@ export async function POST(request: Request) {
         </div>
       `,
     });
+    if (emailResult.provider === "noop") {
+      throw new Error("No email provider configured for OTP delivery");
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

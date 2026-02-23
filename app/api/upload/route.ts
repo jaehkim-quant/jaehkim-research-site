@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { put } from "@vercel/blob";
 import { customAlphabet } from "nanoid";
-import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { uploadPublicFile } from "@/lib/storage/provider";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const MAX_SIZE = 4 * 1024 * 1024; // 4MB
@@ -44,29 +43,14 @@ export async function POST(request: Request) {
   const ext = path.extname(file.name) || ".jpg";
   const filename = `${nanoid()}${ext}`;
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    try {
-      const blob = await put(filename, file, {
-        access: "public",
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      });
-      return NextResponse.json({ url: blob.url });
-    } catch (err) {
-      console.error("Vercel Blob upload error:", err);
-      return NextResponse.json(
-        { error: "Upload failed" },
-        { status: 500 }
-      );
-    }
+  try {
+    const uploaded = await uploadPublicFile({ file, filename });
+    return NextResponse.json({ url: uploaded.url });
+  } catch (err) {
+    console.error("Upload provider error:", err);
+    return NextResponse.json(
+      { error: "Upload failed" },
+      { status: 500 }
+    );
   }
-
-  // Local fallback: save to public/uploads
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadDir, { recursive: true });
-  const filepath = path.join(uploadDir, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(filepath, buffer);
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
-  const url = baseUrl ? `${baseUrl}/uploads/${filename}` : `/uploads/${filename}`;
-  return NextResponse.json({ url });
 }

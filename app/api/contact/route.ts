@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getDefaultEmailFrom, sendEmail } from "@/lib/email/provider";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -40,10 +40,9 @@ export async function POST(request: Request) {
     });
 
     const adminEmail = process.env.ADMIN_EMAIL;
-    if (adminEmail && process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
-        from: "JaehKim Research <onboarding@resend.dev>",
+    if (adminEmail) {
+      await sendEmail({
+        from: getDefaultEmailFrom(),
         to: adminEmail,
         subject: `[Contact] ${subject}`,
         html: `
