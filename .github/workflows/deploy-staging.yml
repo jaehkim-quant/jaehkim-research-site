@@ -34,6 +34,27 @@ jobs:
       - name: Build app
         run: npm run build
 
+      - name: Validate staging secrets
+        env:
+          STAGING_HOST: ${{ secrets.STAGING_HOST }}
+          STAGING_PORT: ${{ secrets.STAGING_PORT }}
+          STAGING_USER: ${{ secrets.STAGING_USER }}
+          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          STAGING_PATH: ${{ secrets.STAGING_PATH }}
+        run: |
+          missing=()
+
+          [ -n "$STAGING_HOST" ] || missing+=("STAGING_HOST")
+          [ -n "$STAGING_PORT" ] || missing+=("STAGING_PORT")
+          [ -n "$STAGING_USER" ] || missing+=("STAGING_USER")
+          [ -n "$STAGING_SSH_KEY" ] || missing+=("STAGING_SSH_KEY")
+          [ -n "$STAGING_PATH" ] || missing+=("STAGING_PATH")
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "Missing GitHub Actions secrets: ${missing[*]}"
+            exit 1
+          fi
+
       - name: Sync repository to EC2
         uses: burnett01/rsync-deployments@7.0.2
         with:
