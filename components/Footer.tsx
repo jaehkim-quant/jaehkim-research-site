@@ -1,35 +1,36 @@
 import Link from "next/link";
 
-const socialLinks = [
-  { href: "https://x.com", label: "X" },
-  { href: "https://github.com", label: "GitHub" },
-  { href: "https://substack.com", label: "Substack" },
+const footerLinks = [
+  { href: "/research", label: "Library" },
+  { href: "/market-monitor", label: "Market Monitor" },
+  { href: "/trading", label: "Trading" },
+  { href: "/investing", label: "Investing" },
 ];
 
 export function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-slate-50">
-      <div className="max-w-content mx-auto px-6 py-10 md:py-12">
-        <div className="flex flex-col md:flex-row justify-between gap-6">
-          <div>
-            <p className="text-sm text-slate-600 mb-3">
-              Privacy · Cookies | Disclaimer · Risk Disclosure
-            </p>
-            <div className="flex gap-4">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-accent-orange hover:underline"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </div>
-          <div />
+    <footer className="relative z-10 border-t border-border/80 px-4 py-6 md:px-8 lg:px-10">
+      <div className="terminal-container flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-text-dark">
+          <span className="terminal-label text-[0.64rem]">Jaehkim Research Grid</span>
+          <span className="hidden text-text-dark/60 md:inline">|</span>
+          <span>Restricted access styling. Public access permitted.</span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 text-xs text-text-dark">
+          <span className="terminal-number text-accent-orange">SYSTEM READY</span>
+          {footerLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="terminal-label text-[0.64rem] text-text-dark hover:text-text-title"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <span className="text-text-dark/60">
+            © {new Date().getFullYear()} JaehKim Research
+          </span>
         </div>
       </div>
     </footer>

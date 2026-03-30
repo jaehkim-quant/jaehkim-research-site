@@ -1,7 +1,9 @@
 import { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { resolveSiteUrl } from "@/lib/site";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jaehkim-research.vercel.app";
+const SITE_URL = resolveSiteUrl();
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await prisma.post.findMany({
@@ -40,16 +42,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${SITE_URL}/about`,
+      url: `${SITE_URL}/market-monitor`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
     {
-      url: `${SITE_URL}/contact`,
+      url: `${SITE_URL}/trading`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/investing`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
   ];
 

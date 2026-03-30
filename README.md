@@ -13,6 +13,8 @@
 - TypeScript
 - Tailwind CSS
 - Pretendard / Inter 폰트
+- Prisma + PostgreSQL
+- AWS S3 업로드 지원
 
 ## 페이지 구조
 
@@ -42,6 +44,32 @@ npm run dev
 - `lib/research/data/tools.mock.ts` - 템플릿/체크리스트 더미 데이터
 
 CMS 연동 시 `lib/research/queries.ts` 및 API 라우트로 확장 가능합니다.
+
+## 문서
+
+- [현재 웹사이트 실행흐름과 설계도](docs/웹사이트_실행흐름_설계도.md)
+- [AWS Migration Playbook](docs/aws-migration-playbook.md)
+- [AWS EC2 + RDS + S3 배포 가이드](docs/aws-ec2-rds-s3-deployment.md)
+- [AWS Staging + Supabase -> RDS Migration Runbook](docs/aws-staging-and-rds-migration-runbook.md)
+
+## GitHub Actions
+
+- `CI`: `main` push / PR 마다 `npm test`, `npm run build`
+- `Deploy Staging`: GitHub Actions에서 수동 실행 시 EC2 staging 서버로 rsync 후 배포
+
+필수 GitHub Actions Secrets:
+
+- `STAGING_HOST`
+- `STAGING_PORT`
+- `STAGING_USER`
+- `STAGING_SSH_KEY`
+- `STAGING_PATH`
+
+서버에는 아래가 미리 준비되어 있어야 합니다.
+
+- Docker / Docker Compose
+- Nginx reverse proxy
+- `STAGING_PATH` 경로의 `.env.staging`
 
 ## 디자인 가이드
 

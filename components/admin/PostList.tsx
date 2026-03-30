@@ -90,18 +90,21 @@ export function PostList() {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-slate-500">Loading posts...</div>
+      <div className="terminal-card px-6 py-16 text-center text-text-dark">
+        Loading posts...
+      </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <div className="text-center py-12">
-        <p className="text-red-600 mb-2">Failed to load posts</p>
-        <p className="text-sm text-slate-500 mb-4">{errorMessage}</p>
+      <div className="terminal-card px-6 py-16 text-center">
+        <p className="mb-2 text-[var(--terminal-danger)]">Failed to load posts</p>
+        <p className="mb-4 text-sm text-text-dark">{errorMessage}</p>
         <button
+          type="button"
           onClick={fetchPosts}
-          className="inline-flex px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
+          className="terminal-outline-button px-4 py-3 text-sm"
         >
           Retry
         </button>
@@ -111,11 +114,11 @@ export function PostList() {
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-slate-500 mb-4">No posts yet</p>
+      <div className="terminal-card px-6 py-16 text-center">
+        <p className="mb-4 text-text-dark">No posts yet</p>
         <Link
           href="/admin/posts/new"
-          className="inline-flex px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+          className="terminal-primary-button font-label text-xs uppercase tracking-[0.2em]"
         >
           Create First Post
         </Link>
@@ -124,69 +127,53 @@ export function PostList() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <table className="w-full">
+    <div className="terminal-card overflow-hidden p-4 md:p-5">
+      <table className="terminal-table">
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50">
-            <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">
-              Title
-            </th>
-            <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3 hidden md:table-cell">
-              Status
-            </th>
-            <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3 hidden md:table-cell">
-              Level
-            </th>
-            <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3 hidden sm:table-cell">
-              Date
-            </th>
-            <th className="text-right text-xs font-medium text-slate-500 uppercase px-4 py-3">
-              Actions
-            </th>
+          <tr>
+            <th>Title</th>
+            <th className="hidden md:table-cell">Status</th>
+            <th className="hidden md:table-cell">Level</th>
+            <th className="hidden lg:table-cell">Date</th>
+            <th className="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           {posts.map((post) => (
-            <tr
-              key={post.id}
-              className="border-b border-slate-100 hover:bg-slate-50"
-            >
-              <td className="px-4 py-3">
-                <p className="text-sm font-medium text-slate-900">
-                  {post.title}
-                </p>
+            <tr key={post.id}>
+              <td>
+                <div className="space-y-1">
+                  <p className="font-medium text-text-title">{post.title}</p>
+                  <p className="text-xs text-text-dark">{post.slug}</p>
+                </div>
               </td>
-              <td className="px-4 py-3 hidden md:table-cell">
+              <td className="hidden md:table-cell">
                 <button
+                  type="button"
                   onClick={() => handleTogglePublish(post)}
-                  className={`inline-flex items-center text-xs px-2 py-1 rounded-full font-medium ${
-                    post.published
-                      ? "bg-green-50 text-green-700"
-                      : "bg-slate-100 text-slate-600"
-                  }`}
+                  className={`terminal-badge ${post.published ? "terminal-badge-amber" : "terminal-badge-neutral"}`}
                 >
                   {post.published ? "Published" : "Draft"}
                 </button>
               </td>
-              <td className="px-4 py-3 hidden md:table-cell">
-                <span className="text-sm text-slate-600">{post.level}</span>
+              <td className="hidden md:table-cell text-sm text-text-dark">
+                {post.level}
               </td>
-              <td className="px-4 py-3 hidden sm:table-cell">
-                <span className="text-sm text-slate-500">
-                  {new Date(post.date).toLocaleDateString()}
-                </span>
+              <td className="hidden lg:table-cell text-sm text-text-dark">
+                {new Date(post.date).toLocaleDateString("ko-KR")}
               </td>
-              <td className="px-4 py-3 text-right">
-                <div className="flex gap-2 justify-end">
+              <td>
+                <div className="flex justify-end gap-2">
                   <Link
                     href={`/admin/posts/${post.id}/edit`}
-                    className="text-xs px-2 py-1 text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                    className="terminal-outline-button px-3 py-2 text-xs"
                   >
                     Edit
                   </Link>
                   <button
+                    type="button"
                     onClick={() => handleDelete(post.id, post.title)}
-                    className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                    className="terminal-outline-button px-3 py-2 text-xs text-[var(--terminal-danger)]"
                   >
                     Delete
                   </button>

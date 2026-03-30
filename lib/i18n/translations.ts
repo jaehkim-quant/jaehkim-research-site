@@ -10,9 +10,9 @@ export const translations = {
     // Nav
     nav: {
       home: "Home",
-      research: "Research Library",
-      knowledgeBase: "Knowledge Base",
-      bookNotes: "Book Notes",
+      research: "Research",
+      knowledgeBase: "Knowledge",
+      bookNotes: "Book",
       about: "About",
       contact: "Contact",
     },
@@ -52,12 +52,12 @@ export const translations = {
 
     // Research
     research: {
-      title: "Research Library",
+      title: "Research",
       desc: "Filter and search research by strategy, factor, risk, market structure, and more.",
       searchPlaceholder: "Search by title, tags, summary",
       noResults: "No results found.",
       loading: "Loading...",
-      backToLibrary: "← Research Library",
+      backToLibrary: "← Research",
       summaryTab: "Summary",
       deepDiveTab: "Deep Dive",
       deepDivePlaceholder:
@@ -256,25 +256,25 @@ export const translations = {
 
     // Knowledge Base
     kb: {
-      title: "Knowledge Base",
+      title: "Knowledge",
       desc: "Curated series of posts on university subjects, textbooks, and foundational topics.",
       noSeries: "No series yet. Check back soon!",
       posts: "posts",
       chapters: "chapters",
       viewSeries: "View Series",
-      backTo: "← Knowledge Base",
+      backTo: "← Knowledge",
       chapter: "Ch.",
     },
 
     // Book Notes
     bn: {
-      title: "Book Notes",
+      title: "Book",
       desc: "Key takeaways and personal notes from books I've read.",
       noSeries: "No book notes yet. Check back soon!",
       posts: "notes",
       chapters: "notes",
       viewSeries: "Read Notes",
-      backTo: "← Book Notes",
+      backTo: "← Book",
       chapter: "Note ",
     },
 
@@ -296,9 +296,9 @@ export const translations = {
     siteName: "Jaehkim's Research",
     nav: {
       home: "Home",
-      research: "Research Library",
-      knowledgeBase: "Knowledge Base",
-      bookNotes: "Book Notes",
+      research: "Research",
+      knowledgeBase: "Knowledge",
+      bookNotes: "Book",
       about: "About",
       contact: "Contact",
     },
@@ -315,7 +315,7 @@ export const translations = {
       },
       featuredTitle: "Featured Research",
       featuredDesc:
-        "Research Library에서 투자 전략과 팩터, 리스크, 마켓구조 등 다양한 주제를 탐색할 수 있습니다.",
+        "Research에서 투자 전략과 팩터, 리스크, 마켓구조 등 다양한 주제를 탐색할 수 있습니다.",
       viewAll: "전체 리서치 보기 →",
       validationTitle: "검증 원칙",
       validationDesc: "재현성·검증·리스크 중심의 신뢰 기준",
@@ -334,12 +334,12 @@ export const translations = {
       newsletterButton: "구독하기",
     },
     research: {
-      title: "Research Library",
+      title: "Research",
       desc: "전략·팩터·리스크·마켓구조 등 리서치를 필터하고 검색할 수 있습니다.",
       searchPlaceholder: "제목, 태그, 요약으로 검색",
       noResults: "검색 결과가 없습니다.",
       loading: "로딩 중...",
-      backToLibrary: "← Research Library",
+      backToLibrary: "← Research",
       summaryTab: "Summary",
       deepDiveTab: "Deep Dive",
       deepDivePlaceholder:
@@ -521,23 +521,23 @@ export const translations = {
       },
     },
     kb: {
-      title: "Knowledge Base",
+      title: "Knowledge",
       desc: "대학 전공과목, 교과서, 기초 주제에 대한 시리즈 모음입니다.",
       noSeries: "아직 시리즈가 없습니다. 곧 업데이트 예정입니다!",
       posts: "개 글",
       chapters: "챕터",
       viewSeries: "시리즈 보기",
-      backTo: "← Knowledge Base",
+      backTo: "← Knowledge",
       chapter: "Ch.",
     },
     bn: {
-      title: "Book Notes",
+      title: "Book",
       desc: "읽은 책에서 얻은 핵심 내용과 개인 메모를 정리합니다.",
       noSeries: "아직 독서 노트가 없습니다. 곧 업데이트 예정입니다!",
       posts: "개 노트",
       chapters: "노트",
       viewSeries: "노트 보기",
-      backTo: "← Book Notes",
+      backTo: "← Book",
       chapter: "Note ",
     },
     levels: {

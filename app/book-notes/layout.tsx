@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Book Notes",
+  title: "Book",
   description:
     "Key takeaways, personal notes, and summaries from books on finance, investing, economics, and quantitative analysis.",
   openGraph: {
-    title: "Book Notes | JaehKim Research",
+    title: "Book | JaehKim Research",
     description:
       "Key takeaways and summaries from books on finance, investing, and quantitative analysis.",
   },

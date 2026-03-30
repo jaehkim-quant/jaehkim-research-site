@@ -26,12 +26,16 @@ export default function EditSeriesPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="py-12 text-center text-slate-500">Loading...</div>;
+    return (
+      <div className="terminal-card px-6 py-16 text-center text-text-dark">
+        Loading...
+      </div>
+    );
   }
 
   if (error || !series) {
     return (
-      <div className="py-12 text-center text-red-600">
+      <div className="terminal-card px-6 py-16 text-center text-[var(--terminal-danger)]">
         {error || "Series not found"}
       </div>
     );
@@ -48,8 +52,13 @@ export default function EditSeriesPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Edit Series</h1>
+    <div className="space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="terminal-label mb-3">Edit Collection</div>
+        <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
+          Edit Series
+        </h1>
+      </section>
       <SeriesForm mode="edit" initialData={initialData} />
     </div>
   );

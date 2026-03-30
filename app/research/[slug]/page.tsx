@@ -5,8 +5,9 @@ import { getSlugVariants, normalizeSlugFromPathParam } from "@/lib/slug";
 import { pickRelatedPosts } from "@/lib/research/postDetail";
 import PostDetailClient from "./PostDetailClient";
 import type { Level } from "@/lib/research/types";
+import { resolveSiteUrl } from "@/lib/site";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jaehkim-research.vercel.app";
+const SITE_URL = resolveSiteUrl();
 
 /** Find post by slug; tries NFC first, then NFD for existing DB rows. */
 async function findPostBySlug(

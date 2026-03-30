@@ -146,104 +146,108 @@ export default function PostDetailClient({
 
   const dateStr =
     typeof initialPost.date === "string" && initialPost.date.includes("T")
-      ? new Date(initialPost.date).toLocaleDateString()
+      ? new Date(initialPost.date).toLocaleDateString("ko-KR")
       : initialPost.date;
 
   return (
-    <article className="py-16 md:py-24 bg-white">
-      <div className="max-w-5xl mx-auto px-6">
-        <Link
-          href="/research"
-          className="text-sm font-medium text-accent-orange hover:underline mb-6 inline-block"
-        >
-          {t("research.backToLibrary")}
-        </Link>
+    <article className="terminal-container space-y-4">
+      <Link
+        href="/research"
+        className="terminal-label inline-flex items-center gap-2 text-[0.66rem] text-accent-orange hover:text-accent-orange/80"
+      >
+        ← {t("research.backToLibrary")}
+      </Link>
 
-        <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
-          {title}
-        </h1>
-
-        <div className="flex flex-wrap items-center gap-3 mb-2">
-          <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
-            {t(`levels.${levelKey}`)}
-          </span>
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-xs px-2 py-1 rounded bg-accent-orange/10 text-accent-orange font-medium"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-8">
-          <span>{dateStr}</span>
-          <span>
-            {readTime} {t("research.minRead")}
-          </span>
-          <span>
-            {viewCount} {t("research.views")}
-          </span>
-          <span>♥ {likeCount}</span>
-          <span>
-            {totalCommentCount} {t("research.comments")}
-          </span>
-        </div>
-
-        <div className="flex gap-8">
-          <div className="flex-1 min-w-0">
-            <div className="rounded-xl border border-slate-200 p-6 bg-slate-50 mb-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-2">
-                {t("research.summaryTab")}
-              </h2>
-              <p className="text-slate-600">{summary}</p>
+      <section className="terminal-card px-6 py-8 md:px-8 md:py-10">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_260px]">
+          <div>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="terminal-badge terminal-badge-neutral">
+                {t(`levels.${levelKey}`)}
+              </span>
+              {tags.map((tag, index) => (
+                <span
+                  key={tag}
+                  className={`terminal-badge ${index === 0 ? "terminal-badge-amber" : "terminal-badge-blue"}`}
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
 
-            {content ? (
-              <div
-                className="rounded-xl border border-slate-200 p-6 mb-8"
-                ref={contentRef}
-              >
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">
-                  {t("research.deepDiveTab")}
-                </h2>
-                <MarkdownRenderer markdown={content} className="text-slate-700" />
-              </div>
-            ) : (
-              <div className="rounded-xl border border-slate-200 p-6 mb-8">
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">
-                  {t("research.deepDiveTab")}
-                </h2>
-                <p className="text-slate-600">
-                  {t("research.deepDivePlaceholder")}
-                </p>
-              </div>
-            )}
+            <h1 className="terminal-title text-4xl leading-[0.96] text-text-title md:text-5xl xl:text-6xl">
+              {title}
+            </h1>
+            <p className="terminal-copy mt-5 max-w-3xl text-sm md:text-base">
+              {summary}
+            </p>
+          </div>
 
-            <div className="flex items-center gap-4 py-6 border-t border-b border-slate-200 mb-8">
+          <div className="terminal-surface rounded-sm p-5">
+            <div className="terminal-label mb-4">Research Packet</div>
+            <div className="space-y-4 text-sm text-text-dark">
+              <div className="flex items-end justify-between gap-4">
+                <span className="terminal-label text-[0.62rem]">Published</span>
+                <span className="terminal-number text-text-title">{dateStr}</span>
+              </div>
+              <div className="flex items-end justify-between gap-4">
+                <span className="terminal-label text-[0.62rem]">Read Time</span>
+                <span className="terminal-number text-text-title">
+                  {readTime} {t("research.minRead")}
+                </span>
+              </div>
+              <div className="flex items-end justify-between gap-4">
+                <span className="terminal-label text-[0.62rem]">Views</span>
+                <span className="terminal-number text-text-title">{viewCount}</span>
+              </div>
+              <div className="flex items-end justify-between gap-4">
+                <span className="terminal-label text-[0.62rem]">Comments</span>
+                <span className="terminal-number text-text-title">
+                  {totalCommentCount}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="space-y-4">
+          <section className="terminal-card p-6">
+            <div className="terminal-label mb-3">{t("research.summaryTab")}</div>
+            <p className="terminal-copy text-sm md:text-base">{summary}</p>
+          </section>
+
+          <section className="terminal-card p-6 md:p-7" ref={contentRef}>
+            <div className="terminal-label mb-4">{t("research.deepDiveTab")}</div>
+            {content ? (
+              <MarkdownRenderer markdown={content} />
+            ) : (
+              <p className="terminal-copy">{t("research.deepDivePlaceholder")}</p>
+            )}
+          </section>
+
+          <section className="terminal-card p-5">
+            <div className="flex flex-wrap items-center gap-3">
               <button
+                type="button"
                 onClick={handleLike}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                  liked
-                    ? "border-red-300 bg-red-50 text-red-600"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
+                className={`terminal-outline-button px-4 py-3 text-sm ${liked ? "border-accent-orange text-accent-orange" : ""}`}
               >
-                <span className="text-lg">{liked ? "♥" : "♡"}</span>
-                <span className="text-sm font-medium">{likeCount}</span>
+                <span>{liked ? "♥" : "♡"}</span>
+                <span className="terminal-number">{likeCount}</span>
               </button>
 
               <div className="relative">
                 <button
+                  type="button"
                   onClick={handleShare}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                  className="terminal-outline-button px-4 py-3 text-sm"
                 >
-                  <span className="text-sm font-medium">
-                    {t("research.copyLink")}
-                  </span>
+                  {t("research.copyLink")}
                 </button>
                 {shareTooltip && (
-                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-slate-800 text-white rounded">
+                  <span className="terminal-label absolute -top-8 left-1/2 -translate-x-1/2 rounded-sm bg-black/80 px-2 py-1 text-[0.58rem] text-text-title">
                     {t("research.copied")}
                   </span>
                 )}
@@ -255,9 +259,9 @@ export default function PostDetailClient({
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium"
+                className="terminal-outline-button px-4 py-3 text-sm"
               >
-                X (Twitter)
+                X
               </a>
 
               <a
@@ -266,99 +270,123 @@ export default function PostDetailClient({
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium"
+                className="terminal-outline-button px-4 py-3 text-sm"
               >
                 LinkedIn
               </a>
             </div>
+          </section>
 
-            <div className="grid grid-cols-2 gap-4 mb-12">
-              {navigation.prevPost ? (
-                <Link
-                  href={`/research/${navigation.prevPost.slug}`}
-                  className="p-4 rounded-lg border border-slate-200 hover:border-accent-orange/50 transition-colors"
-                >
-                  <span className="text-xs text-slate-500">
-                    ← {t("research.prevPost")}
-                  </span>
-                  <p className="text-sm font-medium text-slate-900 mt-1 line-clamp-1">
-                    {navigation.prevPost.title}
-                  </p>
-                </Link>
-              ) : (
-                <div />
-              )}
-              {navigation.nextPost ? (
-                <Link
-                  href={`/research/${navigation.nextPost.slug}`}
-                  className="p-4 rounded-lg border border-slate-200 hover:border-accent-orange/50 transition-colors text-right"
-                >
-                  <span className="text-xs text-slate-500">
-                    {t("research.nextPost")} →
-                  </span>
-                  <p className="text-sm font-medium text-slate-900 mt-1 line-clamp-1">
-                    {navigation.nextPost.title}
-                  </p>
-                </Link>
-              ) : (
-                <div />
-              )}
-            </div>
-
-            {navigation.relatedPosts.length > 0 && (
-              <div className="mb-12">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  {t("research.relatedPosts")}
+          <section className="grid gap-4 md:grid-cols-2">
+            {navigation.prevPost ? (
+              <Link
+                href={`/research/${navigation.prevPost.slug}`}
+                className="terminal-card p-5"
+              >
+                <div className="terminal-label mb-3">{t("research.prevPost")}</div>
+                <h3 className="terminal-heading text-lg text-text-title">
+                  {navigation.prevPost.title}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {navigation.relatedPosts.map((rp) => (
-                    <Link
-                      key={rp.id}
-                      href={`/research/${rp.slug}`}
-                      className="p-4 rounded-lg border border-slate-200 hover:border-accent-orange/50 transition-colors"
-                    >
-                      <h4 className="text-sm font-semibold text-slate-900 mb-1 line-clamp-1">
-                        {rp.title}
-                      </h4>
-                      <p className="text-xs text-slate-600 line-clamp-2">
-                        {rp.summary}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+                <p className="terminal-copy mt-2 line-clamp-2 text-sm">
+                  {navigation.prevPost.summary}
+                </p>
+              </Link>
+            ) : (
+              <div />
             )}
+            {navigation.nextPost ? (
+              <Link
+                href={`/research/${navigation.nextPost.slug}`}
+                className="terminal-card p-5 text-left md:text-right"
+              >
+                <div className="terminal-label mb-3">{t("research.nextPost")}</div>
+                <h3 className="terminal-heading text-lg text-text-title">
+                  {navigation.nextPost.title}
+                </h3>
+                <p className="terminal-copy mt-2 line-clamp-2 text-sm">
+                  {navigation.nextPost.summary}
+                </p>
+              </Link>
+            ) : (
+              <div />
+            )}
+          </section>
 
+          {navigation.relatedPosts.length > 0 && (
+            <section className="terminal-card p-6">
+              <div className="terminal-label mb-3">
+                {t("research.relatedPosts")}
+              </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                {navigation.relatedPosts.map((rp) => (
+                  <Link
+                    key={rp.id}
+                    href={`/research/${rp.slug}`}
+                    className="terminal-list-row h-full px-4 py-4"
+                  >
+                    <h3 className="terminal-heading text-lg text-text-title">
+                      {rp.title}
+                    </h3>
+                    <p className="terminal-copy mt-2 line-clamp-3 text-sm">
+                      {rp.summary}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section className="terminal-card p-6">
             <CommentSection
               postId={initialPost.id}
               comments={comments}
               onCommentAdded={handleCommentAdded}
             />
-          </div>
-
-          {toc.length > 0 && (
-            <aside className="hidden lg:block w-56 flex-shrink-0">
-              <div className="sticky top-24">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                  Table of Contents
-                </p>
-                <nav className="space-y-1.5">
-                  {toc.map((item) => (
-                    <a
-                      key={item.id}
-                      href={`#${item.id}`}
-                      className={`block text-sm text-slate-600 hover:text-accent-orange transition-colors ${
-                        item.level === 3 ? "pl-3" : ""
-                      }`}
-                    >
-                      {item.text}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-            </aside>
-          )}
+          </section>
         </div>
+
+        <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+          {toc.length > 0 && (
+            <section className="terminal-card p-5">
+              <div className="terminal-label mb-4">Table of Contents</div>
+              <nav className="space-y-2">
+                {toc.map((item) => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    className={`block text-sm text-text-dark hover:text-accent-orange ${
+                      item.level === 3 ? "pl-4" : ""
+                    }`}
+                  >
+                    {item.text}
+                  </a>
+                ))}
+              </nav>
+            </section>
+          )}
+
+          <section className="terminal-card p-5">
+            <div className="terminal-label mb-4">Document Signals</div>
+            <div className="space-y-3">
+              <div className="terminal-surface rounded-sm p-4">
+                <div className="terminal-label text-[0.62rem]">Tags</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <span key={tag} className="terminal-badge terminal-badge-amber">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="terminal-surface rounded-sm p-4">
+                <div className="terminal-label text-[0.62rem]">Canonical URL</div>
+                <p className="mt-3 break-all text-sm text-text-dark">
+                  {canonicalUrl}
+                </p>
+              </div>
+            </div>
+          </section>
+        </aside>
       </div>
     </article>
   );

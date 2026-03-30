@@ -1,0 +1,64 @@
+name: Deploy Staging
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ci-secret
+      EMAIL_PROVIDER: noop
+      STORAGE_PROVIDER: local
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build app
+        run: npm run build
+
+      - name: Sync repository to EC2
+        uses: burnett01/rsync-deployments@7.0.2
+        with:
+          switches: >-
+            -az --delete
+            --exclude=.git
+            --exclude=node_modules
+            --exclude=.next
+            --exclude=.env.local
+            --exclude=.env.staging
+            --exclude=.DS_Store
+          path: ./
+          remote_path: ${{ secrets.STAGING_PATH }}
+          remote_host: ${{ secrets.STAGING_HOST }}
+          remote_user: ${{ secrets.STAGING_USER }}
+          remote_key: ${{ secrets.STAGING_SSH_KEY }}
+          remote_port: ${{ secrets.STAGING_PORT }}
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT }}
+          script: |
+            cd ${{ secrets.STAGING_PATH }}
+            bash scripts/deploy-staging.sh

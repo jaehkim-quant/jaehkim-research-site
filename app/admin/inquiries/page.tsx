@@ -58,59 +58,66 @@ export default function InquiriesPage() {
   const unreadCount = inquiries.filter((inq) => !inq.read).length;
 
   if (loading) {
-    return <p className="text-slate-500 py-8">Loading inquiries...</p>;
+    return (
+      <div className="terminal-card px-6 py-16 text-center text-text-dark">
+        Loading inquiries...
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">
-          Inquiries
-          {unreadCount > 0 && (
-            <span className="ml-2 px-2 py-0.5 text-sm font-medium bg-orange-100 text-orange-700 rounded-full">
-              {unreadCount} new
+    <div className="space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="terminal-label mb-3">Inbound Queue</div>
+            <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
+              Inquiries
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            {unreadCount > 0 && (
+              <span className="terminal-badge terminal-badge-amber">
+                {unreadCount} new
+              </span>
+            )}
+            <span className="terminal-label text-[0.66rem]">
+              {inquiries.length} total
             </span>
-          )}
-        </h1>
-        <p className="text-sm text-slate-500">{inquiries.length} total</p>
-      </div>
+          </div>
+        </div>
+      </section>
 
       {inquiries.length === 0 ? (
-        <p className="text-slate-500 py-16 text-center">
+        <div className="terminal-card px-6 py-16 text-center text-text-dark">
           No inquiries yet.
-        </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {inquiries.map((inq) => (
             <div
               key={inq.id}
-              className={`border rounded-lg bg-white transition-colors ${
-                inq.read
-                  ? "border-slate-200"
-                  : "border-orange-300 bg-orange-50/30"
-              }`}
+              className={`terminal-card ${inq.read ? "" : "border-accent-orange/40"}`}
             >
               <div
-                className="flex items-center gap-4 px-5 py-4 cursor-pointer"
-                onClick={() =>
-                  setExpandedId(expandedId === inq.id ? null : inq.id)
-                }
+                className="flex cursor-pointer items-start gap-4 px-5 py-5"
+                onClick={() => setExpandedId(expandedId === inq.id ? null : inq.id)}
               >
                 <div
-                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                    inq.read ? "bg-slate-300" : "bg-orange-500"
+                  className={`mt-2 h-2.5 w-2.5 rounded-full ${
+                    inq.read ? "bg-white/20" : "bg-accent-orange"
                   }`}
                 />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="terminal-badge terminal-badge-blue">
                       {purposeLabels[inq.purpose] || inq.purpose}
                     </span>
-                    <span className="font-medium text-slate-900 truncate">
+                    <span className="text-sm font-medium text-text-title">
                       {inq.subject}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-500 mt-1">
+                  <p className="text-sm text-text-dark">
                     {inq.name} · {inq.email} ·{" "}
                     {new Date(inq.createdAt).toLocaleDateString("ko-KR", {
                       year: "numeric",
@@ -121,46 +128,36 @@ export default function InquiriesPage() {
                     })}
                   </p>
                 </div>
-                <svg
-                  className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${
-                    expandedId === inq.id ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                <span className="terminal-number text-sm text-text-dark">
+                  {expandedId === inq.id ? "−" : "+"}
+                </span>
               </div>
 
               {expandedId === inq.id && (
-                <div className="px-5 pb-5 border-t border-slate-100">
-                  <div className="mt-4 p-4 bg-slate-50 rounded-lg">
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                <div className="border-t border-border px-5 pb-5">
+                  <div className="mt-4 rounded-sm bg-white/4 p-4">
+                    <p className="whitespace-pre-wrap text-sm text-text-dark">
                       {inq.message}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 mt-4">
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
                     <button
+                      type="button"
                       onClick={() => toggleRead(inq.id, inq.read)}
-                      className="text-sm px-3 py-1.5 rounded border border-slate-300 text-slate-600 hover:bg-slate-50"
+                      className="terminal-outline-button px-3 py-2 text-sm"
                     >
                       {inq.read ? "Mark as unread" : "Mark as read"}
                     </button>
                     <a
                       href={`mailto:${inq.email}?subject=Re: ${encodeURIComponent(inq.subject)}`}
-                      className="text-sm px-3 py-1.5 rounded bg-orange-500 text-white hover:bg-orange-600"
+                      className="terminal-primary-button px-3 py-2 font-label text-xs uppercase tracking-[0.18em]"
                     >
                       Reply via email
                     </a>
                     <button
+                      type="button"
                       onClick={() => handleDelete(inq.id)}
-                      className="text-sm px-3 py-1.5 rounded border border-red-200 text-red-600 hover:bg-red-50 ml-auto"
+                      className="terminal-outline-button ml-auto px-3 py-2 text-sm text-[var(--terminal-danger)]"
                     >
                       Delete
                     </button>

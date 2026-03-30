@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Knowledge Base",
+  title: "Knowledge",
   description:
     "Curated series on university subjects, financial engineering, portfolio theory, and foundational quantitative topics.",
   openGraph: {
-    title: "Knowledge Base | JaehKim Research",
+    title: "Knowledge | JaehKim Research",
     description:
       "Curated series on university subjects and foundational quantitative topics.",
   },

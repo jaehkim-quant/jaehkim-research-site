@@ -20,8 +20,10 @@ export default function AdminLoginPage() {
 
   if (status === "loading" || status === "authenticated") {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <p className="text-sm text-slate-500">Checking session...</p>
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <p className="terminal-label text-[0.68rem] text-text-dark">
+          Checking session...
+        </p>
       </div>
     );
   }
@@ -54,22 +56,20 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="terminal-card p-8 md:p-10">
+          <div className="terminal-label mb-3">Admin Access</div>
+          <h1 className="terminal-heading text-4xl text-text-title">
             Admin Login
           </h1>
-          <p className="text-sm text-slate-500 mb-6">
-            JaehKim Research Management
+          <p className="terminal-copy mt-4 text-sm">
+            JaehKim Research management terminal with OTP verification.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-slate-700 mb-1"
-              >
+              <label htmlFor="username" className="terminal-label mb-2 block text-[0.66rem]">
                 Username
               </label>
               <input
@@ -77,17 +77,14 @@ export default function AdminLoginPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="terminal-input"
                 placeholder="Enter username"
                 required
               />
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-slate-700 mb-1"
-              >
+              <label htmlFor="password" className="terminal-label mb-2 block text-[0.66rem]">
                 Password
               </label>
               <input
@@ -95,14 +92,14 @@ export default function AdminLoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="terminal-input"
                 placeholder="Enter password"
                 required
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+              <p className="rounded-sm border border-[rgba(255,180,171,0.3)] bg-[rgba(255,180,171,0.08)] px-4 py-3 text-sm text-[var(--terminal-danger)]">
                 {error}
               </p>
             )}
@@ -110,7 +107,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-orange-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="terminal-primary-button w-full justify-center font-label text-xs uppercase tracking-[0.2em] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Sending OTP..." : "Continue"}
             </button>

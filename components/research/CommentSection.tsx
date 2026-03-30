@@ -37,19 +37,19 @@ function getInitials(name: string) {
 
 function getAvatarColor(name: string) {
   const colors = [
-    "bg-orange-500",
-    "bg-blue-500",
+    "bg-accent-orange",
+    "bg-accent-blue",
     "bg-emerald-500",
-    "bg-purple-500",
-    "bg-pink-500",
+    "bg-amber-400",
     "bg-cyan-500",
-    "bg-amber-500",
-    "bg-indigo-500",
+    "bg-fuchsia-500",
   ];
+
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
+
   return colors[Math.abs(hash) % colors.length];
 }
 
@@ -100,6 +100,7 @@ function CommentForm({
           parentId: parentId || null,
         }),
       });
+
       if (res.ok) {
         const newComment = await res.json();
         onSubmit({ ...newComment, replies: [] });
@@ -109,12 +110,13 @@ function CommentForm({
     } catch {
       /* ignore */
     }
+
     setStatus("idle");
   };
 
   return (
     <form onSubmit={handleSubmit} className={compact ? "space-y-3" : "space-y-4"}>
-      <div className={compact ? "flex gap-3" : ""}>
+      <div className={compact ? "grid gap-3 md:grid-cols-[160px_minmax(0,1fr)]" : ""}>
         <input
           type="text"
           value={name}
@@ -122,9 +124,7 @@ function CommentForm({
           placeholder={t("research.commentNamePlaceholder")}
           required
           maxLength={50}
-          className={`${
-            compact ? "w-40" : "w-full"
-          } px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-orange/50 focus:border-accent-orange`}
+          className="terminal-input py-3 text-sm"
         />
         {compact && (
           <textarea
@@ -133,8 +133,8 @@ function CommentForm({
             placeholder={t("research.replyPlaceholder")}
             required
             maxLength={2000}
-            rows={1}
-            className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-orange/50 focus:border-accent-orange resize-none"
+            rows={2}
+            className="terminal-textarea text-sm"
           />
         )}
       </div>
@@ -145,17 +145,15 @@ function CommentForm({
           placeholder={t("research.commentContentPlaceholder")}
           required
           maxLength={2000}
-          rows={3}
-          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-orange/50 focus:border-accent-orange resize-none"
+          rows={4}
+          className="terminal-textarea text-sm"
         />
       )}
       <div className="flex items-center gap-2">
         <button
           type="submit"
           disabled={status === "posting"}
-          className={`${
-            compact ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"
-          } rounded-lg bg-accent-orange text-white font-medium hover:bg-accent-orange/90 transition-colors disabled:opacity-50`}
+          className={`${compact ? "px-3 py-2 text-xs" : "px-4 py-3 text-sm"} terminal-primary-button font-label uppercase tracking-[0.18em] disabled:opacity-50`}
         >
           {status === "posting"
             ? t("research.commentSubmitting")
@@ -167,9 +165,7 @@ function CommentForm({
           <button
             type="button"
             onClick={onCancel}
-            className={`${
-              compact ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"
-            } rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors`}
+            className={`${compact ? "px-3 py-2 text-xs" : "px-4 py-3 text-sm"} terminal-outline-button`}
           >
             {t("research.cancel")}
           </button>
@@ -196,53 +192,39 @@ function CommentItem({
   const avatarColor = getAvatarColor(comment.name);
 
   return (
-    <div className={`flex gap-3 ${isReply ? "" : ""}`}>
-      {/* Avatar */}
+    <div className="flex gap-3">
       <div
-        className={`${avatarColor} ${
-          isReply ? "w-7 h-7 text-[10px]" : "w-9 h-9 text-xs"
-        } rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0`}
+        className={`${avatarColor} ${isReply ? "h-8 w-8 text-[10px]" : "h-10 w-10 text-xs"} flex shrink-0 items-center justify-center rounded-full font-semibold text-[#140d08]`}
       >
         {initials}
       </div>
 
-      <div className="flex-1 min-w-0">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-1">
-          <span
-            className={`font-semibold text-slate-900 ${
-              isReply ? "text-xs" : "text-sm"
-            }`}
-          >
+      <div className="min-w-0 flex-1">
+        <div className="mb-1 flex items-center gap-2">
+          <span className={`font-semibold text-text-title ${isReply ? "text-xs" : "text-sm"}`}>
             {comment.name}
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="terminal-label text-[0.58rem] text-text-dark">
             {timeAgo(comment.createdAt)}
           </span>
         </div>
 
-        {/* Content */}
-        <p
-          className={`text-slate-700 whitespace-pre-wrap ${
-            isReply ? "text-xs" : "text-sm"
-          }`}
-        >
+        <p className={`whitespace-pre-wrap text-text-dark ${isReply ? "text-xs" : "text-sm"}`}>
           {comment.content}
         </p>
 
-        {/* Reply button (only for top-level) */}
         {!isReply && (
           <button
+            type="button"
             onClick={() => setShowReplyForm(!showReplyForm)}
-            className="mt-2 text-xs font-medium text-slate-400 hover:text-accent-orange transition-colors"
+            className="mt-3 terminal-label text-[0.58rem] text-accent-orange hover:text-accent-orange/80"
           >
             {showReplyForm ? t("research.cancel") : t("research.reply")}
           </button>
         )}
 
-        {/* Inline reply form */}
         {showReplyForm && (
-          <div className="mt-3">
+          <div className="mt-4">
             <CommentForm
               postId={postId}
               parentId={comment.id}
@@ -273,52 +255,45 @@ export function CommentSection({
 
   return (
     <div>
-      <h3 className="text-lg font-semibold text-slate-900 mb-6">
-        {t("research.comments")} ({totalCount})
-      </h3>
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <div className="terminal-label mb-2">Discussion</div>
+          <h3 className="terminal-heading text-2xl text-text-title">
+            {t("research.comments")} ({totalCount})
+          </h3>
+        </div>
+      </div>
 
-      {/* Top-level comment form */}
-      <div className="mb-8 p-5 rounded-xl border border-slate-200 bg-slate-50/50">
+      <div className="terminal-surface rounded-sm p-5">
         <CommentForm
           postId={postId}
           onSubmit={(comment) => onCommentAdded(comment as Comment)}
         />
       </div>
 
-      {/* Comments list */}
       {totalCount === 0 ? (
-        <p className="text-slate-400 text-sm py-12 text-center">
+        <p className="py-12 text-center text-sm text-text-dark">
           {t("research.commentEmpty")}
         </p>
       ) : (
-        <div className="space-y-0">
+        <div className="mt-6 space-y-3">
           {comments.map((comment) => (
-            <div key={comment.id}>
-              {/* Top-level comment */}
-              <div className="py-5 border-b border-slate-100 last:border-b-0">
-                <CommentItem
-                  comment={comment}
-                  postId={postId}
-                  onReplyAdded={(reply) =>
-                    onCommentAdded(reply, comment.id)
-                  }
-                />
+            <div key={comment.id} className="terminal-surface rounded-sm p-5">
+              <CommentItem
+                comment={comment}
+                postId={postId}
+                onReplyAdded={(reply) => onCommentAdded(reply, comment.id)}
+              />
 
-                {/* Replies thread */}
-                {comment.replies && comment.replies.length > 0 && (
-                  <div className="ml-12 mt-3 pl-4 border-l-2 border-slate-200 space-y-3">
-                    {comment.replies.map((reply) => (
-                      <div key={reply.id} className="py-2">
-                        <CommentItem
-                          comment={reply}
-                          postId={postId}
-                          isReply
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {comment.replies && comment.replies.length > 0 && (
+                <div className="ml-6 mt-5 space-y-3 border-l border-border pl-5 md:ml-12">
+                  {comment.replies.map((reply) => (
+                    <div key={reply.id} className="terminal-surface rounded-sm p-4">
+                      <CommentItem comment={reply} postId={postId} isReply />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

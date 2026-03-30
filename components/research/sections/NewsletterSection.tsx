@@ -1,33 +1,59 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function NewsletterSection() {
   const { t } = useTranslation();
 
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-content mx-auto px-6">
-        <div className="max-w-xl mx-auto p-8 rounded-2xl border-2 border-slate-200 bg-slate-50 text-center">
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">
-            {t("home.newsletterTitle")}
-          </h2>
-          <p className="text-sm text-slate-600 mb-6">
-            {t("home.newsletterDesc")}
-          </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder={t("home.newsletterPlaceholder")}
-              className="flex-1 px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-accent-orange focus:border-transparent"
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 rounded-lg bg-accent-orange text-white font-medium hover:bg-accent-orange/90 transition-colors shrink-0"
-            >
-              {t("home.newsletterButton")}
-            </button>
-          </form>
+    <section className="py-6 md:py-8">
+      <div className="terminal-container">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="terminal-card overflow-hidden px-6 py-7 md:px-8 md:py-8">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
+              <div>
+                <div className="terminal-label mb-3">Newsletter Channel</div>
+                <h2 className="terminal-heading text-3xl text-text-title md:text-[2.35rem]">
+                  {t("home.newsletterTitle")}
+                </h2>
+                <p className="terminal-copy mt-4 max-w-2xl text-sm md:text-base">
+                  {t("home.newsletterDesc")}
+                </p>
+              </div>
+
+              <form className="grid gap-3">
+                <input
+                  type="email"
+                  placeholder={t("home.newsletterPlaceholder")}
+                  className="terminal-input"
+                />
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="submit"
+                    className="terminal-primary-button flex-1 font-label text-xs uppercase tracking-[0.22em]"
+                  >
+                    {t("home.newsletterButton")}
+                  </button>
+                  <Link
+                    href="/subscribe"
+                    className="terminal-outline-button font-label text-xs uppercase tracking-[0.22em]"
+                  >
+                    Pricing
+                  </Link>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div className="terminal-card p-5">
+            <div className="terminal-label mb-3">Signal Promise</div>
+            <div className="space-y-4 text-sm text-text-dark">
+              <p>Low-noise distribution with editorial summaries and archive links.</p>
+              <p>Weekly quant notes, monthly library refreshes, and selected case dispatches.</p>
+              <p>No trend-chasing blasts. Only validated releases and operating memos.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

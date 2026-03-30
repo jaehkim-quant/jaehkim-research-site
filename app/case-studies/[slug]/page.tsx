@@ -19,36 +19,46 @@ export default function CaseStudyDetailPage({
   ];
 
   return (
-    <article className="py-section md:py-section-lg">
-      <div className="max-w-3xl mx-auto px-6">
-        <Link
-          href="/case-studies"
-          className="text-sm text-accent-blue hover:underline mb-6 inline-block"
-        >
-          ← Case Studies
-        </Link>
-        <h1 className="text-3xl md:text-4xl font-semibold text-text-dark dark:text-text-title mb-6">
+    <article className="terminal-container space-y-4">
+      <Link
+        href="/case-studies"
+        className="terminal-label inline-flex items-center gap-2 text-[0.66rem] text-accent-orange hover:text-accent-orange/80"
+      >
+        ← Case Studies
+      </Link>
+
+      <section className="terminal-card p-6 md:p-8">
+        <div className="terminal-label mb-3">{c.date}</div>
+        <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
           {c.title}
         </h1>
-        {c.date && (
-          <span className="text-sm text-text-dark/60 dark:text-text/60">
-            {c.date}
-          </span>
-        )}
+      </section>
 
-        <div className="mt-10 space-y-8">
-          {sections.map(({ title, content }) => (
-            <div key={title}>
-              <h2 className="text-lg font-semibold text-text-dark dark:text-text-title mb-2">
+      <section className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <aside className="terminal-card p-5">
+          <div className="terminal-label mb-4">Sections</div>
+          <div className="space-y-2">
+            {sections.map(({ title }) => (
+              <a
+                key={title}
+                href={`#${title.toLowerCase()}`}
+                className="block text-sm text-text-dark hover:text-accent-orange"
+              >
                 {title}
-              </h2>
-              <p className="text-text-dark/80 dark:text-text/80 leading-relaxed">
-                {content}
-              </p>
-            </div>
+              </a>
+            ))}
+          </div>
+        </aside>
+
+        <div className="space-y-4">
+          {sections.map(({ title, content }) => (
+            <section key={title} id={title.toLowerCase()} className="terminal-card p-6">
+              <div className="terminal-label mb-3">{title}</div>
+              <p className="terminal-copy text-sm md:text-base">{content}</p>
+            </section>
           ))}
         </div>
-      </div>
+      </section>
     </article>
   );
 }

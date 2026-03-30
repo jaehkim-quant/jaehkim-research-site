@@ -29,12 +29,16 @@ export default function EditPostPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="py-12 text-center text-slate-500">Loading...</div>;
+    return (
+      <div className="terminal-card px-6 py-16 text-center text-text-dark">
+        Loading...
+      </div>
+    );
   }
 
   if (error || !post) {
     return (
-      <div className="py-12 text-center text-red-600">
+      <div className="terminal-card px-6 py-16 text-center text-[var(--terminal-danger)]">
         {error || "Post not found"}
       </div>
     );
@@ -57,8 +61,13 @@ export default function EditPostPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Edit Post</h1>
+    <div className="space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="terminal-label mb-3">Edit Packet</div>
+        <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
+          Edit Post
+        </h1>
+      </section>
       <PostForm mode="edit" initialData={initialData} />
     </div>
   );

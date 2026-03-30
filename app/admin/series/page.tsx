@@ -15,8 +15,8 @@ interface SeriesItem {
 }
 
 const typeLabels: Record<string, string> = {
-  "knowledge-base": "Knowledge Base",
-  "book-notes": "Book Notes",
+  "knowledge-base": "Knowledge",
+  "book-notes": "Book",
 };
 
 export default function AdminSeriesPage() {
@@ -66,80 +66,103 @@ export default function AdminSeriesPage() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Series</h1>
-        <Link
-          href="/admin/series/new"
-          className="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
-        >
-          + New Series
-        </Link>
-      </div>
+    <div className="space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="terminal-label mb-3">Series Operations</div>
+            <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
+              Series
+            </h1>
+            <p className="terminal-copy mt-4 max-w-3xl text-sm md:text-base">
+              Manage knowledge-base and book-note collections without changing route structure or publishing flow.
+            </p>
+          </div>
+          <Link
+            href="/admin/series/new"
+            className="terminal-primary-button font-label text-xs uppercase tracking-[0.2em]"
+          >
+            New Series
+          </Link>
+        </div>
+      </section>
 
       {loading ? (
-        <p className="text-slate-500 py-8">Loading...</p>
+        <div className="terminal-card px-6 py-16 text-center text-text-dark">
+          Loading...
+        </div>
       ) : errorMessage ? (
-        <div className="py-8">
-          <p className="text-red-600 mb-2">Failed to load series</p>
-          <p className="text-sm text-slate-500 mb-4">{errorMessage}</p>
+        <div className="terminal-card px-6 py-16 text-center">
+          <p className="mb-2 text-[var(--terminal-danger)]">Failed to load series</p>
+          <p className="mb-4 text-sm text-text-dark">{errorMessage}</p>
           <button
+            type="button"
             onClick={fetchSeries}
-            className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
+            className="terminal-outline-button px-4 py-3 text-sm"
           >
             Retry
           </button>
         </div>
       ) : seriesList.length === 0 ? (
-        <p className="text-slate-500 py-8">No series yet.</p>
+        <div className="terminal-card px-6 py-16 text-center text-text-dark">
+          No series yet.
+        </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table className="w-full">
+        <div className="terminal-card overflow-hidden p-4 md:p-5">
+          <table className="terminal-table">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-left">
-                <th className="px-4 py-3 text-sm font-medium text-slate-600">Title</th>
-                <th className="px-4 py-3 text-sm font-medium text-slate-600">Type</th>
-                <th className="px-4 py-3 text-sm font-medium text-slate-600">Level</th>
-                <th className="px-4 py-3 text-sm font-medium text-slate-600">Posts</th>
-                <th className="px-4 py-3 text-sm font-medium text-slate-600">Status</th>
-                <th className="px-4 py-3 text-sm font-medium text-slate-600">Actions</th>
+              <tr>
+                <th>Title</th>
+                <th className="hidden md:table-cell">Type</th>
+                <th className="hidden md:table-cell">Level</th>
+                <th className="hidden lg:table-cell">Posts</th>
+                <th className="hidden md:table-cell">Status</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {seriesList.map((s) => (
-                <tr key={s.id} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-4 py-3">
-                    <div className="text-sm font-medium text-slate-900">{s.title}</div>
+              {seriesList.map((series) => (
+                <tr key={series.id}>
+                  <td>
+                    <div className="space-y-1">
+                      <div className="font-medium text-text-title">{series.title}</div>
+                      <div className="text-xs text-text-dark">{series.slug}</div>
+                    </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">
-                      {typeLabels[s.type] || s.type}
+                  <td className="hidden md:table-cell">
+                    <span className="terminal-badge terminal-badge-blue">
+                      {typeLabels[series.type] || series.type}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{s.level}</td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{s.postCount}</td>
-                  <td className="px-4 py-3">
+                  <td className="hidden md:table-cell text-sm text-text-dark">
+                    {series.level}
+                  </td>
+                  <td className="hidden lg:table-cell text-sm text-text-dark">
+                    {series.postCount}
+                  </td>
+                  <td className="hidden md:table-cell">
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        s.published
-                          ? "bg-green-100 text-green-700"
-                          : "bg-slate-100 text-slate-600"
+                      className={`terminal-badge ${
+                        series.published
+                          ? "terminal-badge-amber"
+                          : "terminal-badge-neutral"
                       }`}
                     >
-                      {s.published ? "Published" : "Draft"}
+                      {series.published ? "Published" : "Draft"}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                  <td>
+                    <div className="flex justify-end gap-2">
                       <Link
-                        href={`/admin/series/${s.id}/edit`}
-                        className="text-sm text-orange-600 hover:underline"
+                        href={`/admin/series/${series.id}/edit`}
+                        className="terminal-outline-button px-3 py-2 text-xs"
                       >
                         Edit
                       </Link>
                       <button
-                        onClick={() => handleDelete(s.id)}
-                        className="text-sm text-red-600 hover:underline"
+                        type="button"
+                        onClick={() => handleDelete(series.id)}
+                        className="terminal-outline-button px-3 py-2 text-xs text-[var(--terminal-danger)]"
                       >
                         Delete
                       </button>

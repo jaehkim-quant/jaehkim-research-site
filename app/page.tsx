@@ -4,8 +4,10 @@ import { FeaturedResearchSection } from "@/components/research/sections/Featured
 import { LatestPostsSection } from "@/components/research/sections/LatestPostsSection";
 import { NewsletterSection } from "@/components/research/sections/NewsletterSection";
 import type { Level } from "@/lib/research/types";
+import { resolveSiteUrl } from "@/lib/site";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jaehkim-research.vercel.app";
+const SITE_URL = resolveSiteUrl();
+export const dynamic = "force-dynamic";
 
 const websiteJsonLd = {
   "@context": "https://schema.org",

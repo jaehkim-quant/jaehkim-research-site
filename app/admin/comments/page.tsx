@@ -51,109 +51,104 @@ export default function AdminCommentsPage() {
 
   if (loading) {
     return (
-      <p className="text-slate-500 py-8">댓글 목록을 불러오는 중...</p>
+      <div className="terminal-card px-6 py-16 text-center text-text-dark">
+        댓글 목록을 불러오는 중...
+      </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">댓글 관리</h1>
-        <p className="text-sm text-slate-500">{comments.length}개 댓글</p>
-      </div>
+    <div className="space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="terminal-label mb-3">Comment Control</div>
+            <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
+              댓글 관리
+            </h1>
+          </div>
+          <span className="terminal-label text-[0.66rem]">
+            {comments.length}개 댓글
+          </span>
+        </div>
+      </section>
 
       {comments.length === 0 ? (
-        <p className="text-slate-500 py-16 text-center">
+        <div className="terminal-card px-6 py-16 text-center text-text-dark">
           아직 댓글이 없습니다.
-        </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="border border-slate-200 rounded-lg bg-white"
-            >
+            <div key={comment.id} className="terminal-card">
               <div
-                className="flex items-start gap-4 px-5 py-4 cursor-pointer"
+                className="flex cursor-pointer items-start gap-4 px-5 py-5"
                 onClick={() =>
                   setExpandedId(expandedId === comment.id ? null : comment.id)
                 }
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-slate-900">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-text-title">
                       {comment.name}
                     </span>
                     {comment.parent && (
-                      <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                        답글
-                      </span>
+                      <span className="terminal-badge terminal-badge-blue">답글</span>
                     )}
                   </div>
-                  <p className="text-sm text-slate-600 mt-1 line-clamp-2">
+                  <p className="line-clamp-2 text-sm text-text-dark">
                     {comment.content}
                   </p>
-                  <div className="flex items-center gap-3 mt-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
                     <Link
                       href={`/research/${comment.post.slug}`}
-                      className="text-xs text-orange-600 hover:text-orange-700 hover:underline"
+                      className="terminal-label text-[0.58rem] text-accent-orange hover:text-accent-orange/80"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {comment.post.title}
                     </Link>
-                    <span className="text-xs text-slate-400">
+                    <span className="terminal-label text-[0.58rem]">
                       {formatDate(comment.createdAt)}
                     </span>
                   </div>
                 </div>
-                <svg
-                  className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${
-                    expandedId === comment.id ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                <span className="terminal-number text-sm text-text-dark">
+                  {expandedId === comment.id ? "−" : "+"}
+                </span>
               </div>
 
               {expandedId === comment.id && (
-                <div className="px-5 pb-5 border-t border-slate-100">
-                  <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+                <div className="border-t border-border px-5 pb-5">
+                  <div className="mt-4 rounded-sm bg-white/4 p-4">
                     {comment.parent && (
-                      <div className="mb-3 pb-3 border-b border-slate-200">
-                        <p className="text-xs text-slate-500 mb-1">
+                      <div className="mb-3 border-b border-border pb-3">
+                        <p className="terminal-label mb-2 text-[0.58rem]">
                           답글 대상: {comment.parent.name}
                         </p>
-                        <p className="text-sm text-slate-600 line-clamp-2">
+                        <p className="line-clamp-2 text-sm text-text-dark">
                           {comment.parent.content}
                         </p>
                       </div>
                     )}
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                    <p className="whitespace-pre-wrap text-sm text-text-dark">
                       {comment.content}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 mt-4">
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
                     <Link
                       href={`/research/${comment.post.slug}#comments`}
-                      className="text-sm px-3 py-1.5 rounded bg-orange-500 text-white hover:bg-orange-600"
+                      className="terminal-primary-button px-3 py-2 font-label text-xs uppercase tracking-[0.18em]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       글에서 보기
                     </Link>
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(comment.id);
                       }}
-                      className="text-sm px-3 py-1.5 rounded border border-red-200 text-red-600 hover:bg-red-50 ml-auto"
+                      className="terminal-outline-button ml-auto px-3 py-2 text-sm text-[var(--terminal-danger)]"
                     >
                       삭제
                     </button>

@@ -72,33 +72,25 @@ export function PostEditorClient({
   }, [markdown]);
 
   return (
-    <div className="border border-slate-300 rounded-lg overflow-hidden bg-white">
-      <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2 bg-slate-50">
+    <div className="terminal-editor terminal-card overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveTab("write")}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-              activeTab === "write"
-                ? "bg-white border border-slate-300 text-slate-900"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            Write
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("preview")}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-              activeTab === "preview"
-                ? "bg-white border border-slate-300 text-slate-900"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            Preview
-          </button>
+          {(["write", "preview"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`rounded-sm px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] ${
+                activeTab === tab
+                  ? "bg-white/10 text-text-title"
+                  : "text-text-dark hover:text-text-title"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
-        <span className="text-xs text-slate-500">Cmd/Ctrl + S: Save draft</span>
+        <span className="terminal-label text-[0.58rem]">Cmd/Ctrl + S</span>
       </div>
 
       {activeTab === "write" ? (
@@ -109,13 +101,13 @@ export function PostEditorClient({
               onSave?.();
             }
           }}
-          className="min-h-[340px]"
+          className="min-h-[380px]"
         >
           <MDXEditor
             ref={editorRef}
             markdown={markdown}
             placeholder={placeholder || "Start writing..."}
-            contentEditableClassName="markdown-body p-4 min-h-[300px] focus:outline-none text-slate-700"
+            contentEditableClassName="markdown-body markdown-body-light min-h-[320px] bg-[#f8f0e3] px-5 py-5 text-[#1f1610] focus:outline-none"
             onChange={(nextMarkdown) => {
               lastSyncedRef.current = nextMarkdown;
               onChange(nextMarkdown);
@@ -154,16 +146,13 @@ export function PostEditorClient({
           />
         </div>
       ) : (
-        <div className="p-4 min-h-[340px]">
-          <MarkdownRenderer
-            markdown={markdown}
-            className="text-slate-700"
-          />
+        <div className="min-h-[380px] bg-[#f8f0e3] px-5 py-5">
+          <MarkdownRenderer markdown={markdown} className="markdown-body-light" />
         </div>
       )}
 
       {uploadError && (
-        <p className="border-t border-slate-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+        <p className="border-t border-border bg-[rgba(255,180,171,0.08)] px-4 py-3 text-xs text-[var(--terminal-danger)]">
           {uploadError}
         </p>
       )}

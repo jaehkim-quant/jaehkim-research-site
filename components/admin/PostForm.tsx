@@ -56,7 +56,6 @@ export function PostForm({ initialData, mode }: PostFormProps) {
     ({
       form: restoredForm,
       tagsInput: restoredTagsInput,
-      savedAt: _savedAt,
     }: {
       form: Partial<PostData>;
       tagsInput: string;
@@ -135,70 +134,73 @@ export function PostForm({ initialData, mode }: PostFormProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Title */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          제목
-        </label>
-        <input
-          type="text"
-          value={form.title}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, title: e.target.value }))
-          }
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="게시글 제목"
-        />
-      </div>
+    <div className="space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field label="제목">
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, title: e.target.value }))
+              }
+              className="terminal-input"
+              placeholder="게시글 제목"
+            />
+          </Field>
 
-      {/* Slug */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          URL Slug
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={form.slug}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, slug: e.target.value }))
-            }
-            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="url-slug"
-          />
-          <button
-            type="button"
-            onClick={handleAutoSlug}
-            disabled={slugGenerating}
-            className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 disabled:opacity-50 transition-colors"
-          >
-            {slugGenerating ? "Generating..." : "Auto"}
-          </button>
+          <Field label="Level">
+            <select
+              value={form.level}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, level: e.target.value }))
+              }
+              className="terminal-select"
+            >
+              <option value="초급">Beginner</option>
+              <option value="중급">Intermediate</option>
+              <option value="고급">Advanced</option>
+            </select>
+          </Field>
+
+          <Field label="URL Slug" className="md:col-span-2">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <input
+                type="text"
+                value={form.slug}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, slug: e.target.value }))
+                }
+                className="terminal-input flex-1"
+                placeholder="url-slug"
+              />
+              <button
+                type="button"
+                onClick={handleAutoSlug}
+                disabled={slugGenerating}
+                className="terminal-outline-button px-4 py-3 text-sm"
+              >
+                {slugGenerating ? "Generating..." : "Auto"}
+              </button>
+            </div>
+          </Field>
+
+          <Field label="요약" className="md:col-span-2">
+            <textarea
+              value={form.summary}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, summary: e.target.value }))
+              }
+              rows={4}
+              className="terminal-textarea"
+              placeholder="게시글 요약을 입력하세요"
+            />
+          </Field>
         </div>
-      </div>
+      </section>
 
-      {/* Summary */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          요약
-        </label>
-        <textarea
-          value={form.summary}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, summary: e.target.value }))
-          }
-          rows={3}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-y"
-          placeholder="게시글 요약을 입력하세요"
-        />
-      </div>
-
-      {/* Content (Rich Editor) */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          본문
-        </label>
+      <section className="terminal-card p-6 md:p-8">
+        <div className="terminal-label mb-4">Content Body</div>
         <PostEditor
           markdown={form.content}
           onChange={(markdown) =>
@@ -207,118 +209,86 @@ export function PostForm({ initialData, mode }: PostFormProps) {
           onSave={() => handleSave(false)}
           placeholder="본문을 작성하세요..."
         />
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-4 text-sm text-text-dark">
           {draftRestored && "초안을 복구했습니다. "}
           {lastSavedAt
             ? `자동 저장: ${new Date(lastSavedAt).toLocaleTimeString()}`
             : "자동 저장 대기 중..."}
         </p>
-      </div>
+      </section>
 
-      {/* Tags */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          태그
-        </label>
-        <input
-          type="text"
-          value={tagsInput}
-          onChange={(e) => setTagsInput(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="쉼표로 구분: tag1, tag2, tag3"
-        />
-      </div>
-
-      {/* Level + Date */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Level
-          </label>
-          <select
-            value={form.level}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, level: e.target.value }))
-            }
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          >
-            <option value="초급">Beginner</option>
-            <option value="중급">Intermediate</option>
-            <option value="고급">Advanced</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Date
-          </label>
-          <input
-            type="date"
-            value={form.date}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, date: e.target.value }))
-            }
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      {/* Series Assignment */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Series (Optional)
-          </label>
-          <select
-            value={form.seriesId}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, seriesId: e.target.value }))
-            }
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          >
-            <option value="">None (No series)</option>
-            {seriesOptions.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1 text-xs text-slate-500">
-            Posts assigned to a series still appear in Research Library.
-          </p>
-        </div>
-        {form.seriesId && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Chapter Order
-            </label>
+      <section className="terminal-card p-6 md:p-8">
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field label="태그" className="md:col-span-2">
             <input
-              type="number"
-              min="1"
-              value={form.seriesOrder}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, seriesOrder: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="1"
+              type="text"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              className="terminal-input"
+              placeholder="쉼표로 구분: tag1, tag2, tag3"
             />
-          </div>
-        )}
-      </div>
+          </Field>
 
-      {/* Error */}
+          <Field label="Date">
+            <input
+              type="date"
+              value={form.date}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, date: e.target.value }))
+              }
+              className="terminal-input"
+            />
+          </Field>
+
+          <Field label="Series (Optional)">
+            <select
+              value={form.seriesId}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, seriesId: e.target.value }))
+              }
+              className="terminal-select"
+            >
+              <option value="">None (No series)</option>
+              {seriesOptions.map((series) => (
+                <option key={series.id} value={series.id}>
+                  {series.title}
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-xs text-text-dark">
+              Posts assigned to a series still appear in Research.
+            </p>
+          </Field>
+
+          {form.seriesId && (
+            <Field label="Chapter Order">
+              <input
+                type="number"
+                min="1"
+                value={form.seriesOrder}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, seriesOrder: e.target.value }))
+                }
+                className="terminal-input"
+                placeholder="1"
+              />
+            </Field>
+          )}
+        </div>
+      </section>
+
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+        <p className="rounded-sm border border-[rgba(255,180,171,0.3)] bg-[rgba(255,180,171,0.08)] px-4 py-3 text-sm text-[var(--terminal-danger)]">
           {error}
         </p>
       )}
 
-      {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t border-slate-200">
+      <div className="terminal-card flex flex-wrap gap-3 px-6 py-5">
         <button
           type="button"
           onClick={() => handleSave(false)}
           disabled={saving}
-          className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+          className="terminal-outline-button px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save as Draft"}
         </button>
@@ -326,18 +296,35 @@ export function PostForm({ initialData, mode }: PostFormProps) {
           type="button"
           onClick={() => handleSave(true)}
           disabled={saving}
-          className="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 disabled:opacity-50 transition-colors"
+          className="terminal-primary-button px-4 py-3 font-label text-xs uppercase tracking-[0.2em] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Publishing..." : "Publish"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/admin")}
-          className="px-4 py-2 text-slate-500 text-sm hover:text-slate-700 transition-colors"
+          className="terminal-outline-button px-4 py-3 text-sm"
         >
           Cancel
         </button>
       </div>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <label className="terminal-label mb-2 block text-[0.66rem]">{label}</label>
+      {children}
     </div>
   );
 }

@@ -5,6 +5,8 @@ import {
   serializePostListItem,
 } from "@/lib/research/serializers";
 
+export const dynamic = "force-dynamic";
+
 export default async function ResearchLibraryPage() {
   const posts = await prisma.post.findMany({
     where: { published: true },

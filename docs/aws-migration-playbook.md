@@ -8,10 +8,12 @@
 - 이메일 Provider 추상화 추가: `/Users/jaehkim/Documents/GitHub/jaehkim-research-site/lib/email/provider.ts`
 - 업로드 라우트가 Provider 사용: `/Users/jaehkim/Documents/GitHub/jaehkim-research-site/app/api/upload/route.ts`
 - 문의/OTP 메일 라우트가 Provider 사용: `/Users/jaehkim/Documents/GitHub/jaehkim-research-site/app/api/contact/route.ts`, `/Users/jaehkim/Documents/GitHub/jaehkim-research-site/app/api/auth/request-otp/route.ts`
+- Next.js standalone 빌드 준비: `/Users/jaehkim/Documents/GitHub/jaehkim-research-site/next.config.js`
+- Docker 배포 파일 추가: `/Users/jaehkim/Documents/GitHub/jaehkim-research-site/Dockerfile`
 
 주의:
-- `STORAGE_PROVIDER=s3`, `EMAIL_PROVIDER=ses`는 선택 가능하지만 현재는 명시적으로 에러를 내도록 되어 있습니다.
-- 즉, 라우트 구조는 AWS 전환 준비가 되었고, 실제 S3/SES 구현은 다음 단계입니다.
+- `STORAGE_PROVIDER=s3`는 이제 실제 업로드가 가능합니다.
+- `EMAIL_PROVIDER=ses`는 여전히 미구현이므로 현재는 Resend 유지가 기본입니다.
 
 ## Phase 0 - 기준선 측정 (필수)
 
@@ -38,15 +40,15 @@
 
 현재 상태:
 
-- 코드 구조는 준비됨 (`uploadPublicFile`)
-- 실제 S3 업로드 구현은 미완료
+- 코드 구조와 실제 S3 업로드 구현이 준비됨 (`uploadPublicFile`)
+- 반환 URL은 `CLOUDFRONT_URL`, `S3_PUBLIC_BASE_URL`, 또는 버킷 URL 순으로 결정됨
 
-구현해야 할 작업 (다음 단계):
+구현해야 할 작업 (운영 단계):
 
-1. `lib/storage/provider.ts`에 S3 업로드 구현 추가
-2. 필요한 환경변수 연결
-3. CloudFront 배포 경로 확정 (`S3_PUBLIC_BASE_URL` 또는 `CLOUDFRONT_URL`)
-4. 운영 환경에서 `STORAGE_PROVIDER=s3`로 전환
+1. 필요한 환경변수 연결
+2. CloudFront 배포 경로 확정 (`S3_PUBLIC_BASE_URL` 또는 `CLOUDFRONT_URL`)
+3. 운영 환경에서 `STORAGE_PROVIDER=s3`로 전환
+4. 업로드된 기존 파일이 있다면 이전 계획 수립
 
 S3 설계 권장값:
 
@@ -127,9 +129,9 @@ S3 설계 권장값:
 
 권장 순서:
 
-1. Vercel 유지 (현행)
-2. 비용/운영 필요 발생 시 App Runner 또는 ECS Fargate 검토
-3. 장기적으로 ECS Fargate + ALB + CloudFront 표준화
+1. 현재 리포지토리의 standalone 빌드를 사용해 EC2에서 먼저 운영
+2. reverse proxy/Nginx와 TLS를 붙여 단일 인스턴스 안정화
+3. 장기적으로 필요 시 App Runner 또는 ECS Fargate 검토
 
 ## 운영 필수 설정 (AWS 시작 시 바로)
 
@@ -165,7 +167,7 @@ S3 설계 권장값:
 
 ## 다음 구현 후보 (기술 부채/확장 포인트)
 
-- S3 실제 업로드 구현 (AWS SDK 또는 SigV4 직접 구현)
 - SES 실제 발송 구현
 - Email failure를 비동기화(SQS)하여 문의 API 성공/실패 분리
 - DB cutover 검증 스크립트 추가 (row count 자동 비교)
+- EC2 단일 인스턴스 이후 ECS/App Runner 표준화

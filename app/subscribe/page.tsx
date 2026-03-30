@@ -38,74 +38,62 @@ export default function SubscribePage() {
   const [formGoal, setFormGoal] = useState("");
 
   return (
-    <div className="py-section md:py-section-lg">
-      <div className="max-w-content mx-auto px-6">
-        <h1 className="text-3xl md:text-4xl font-semibold text-text-dark dark:text-text-title mb-4">
+    <div className="terminal-container space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="terminal-label mb-3">Subscription Terminal</div>
+        <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
           Subscribe / Work With Me
         </h1>
-        <p className="text-text-dark/70 dark:text-text/70 mb-16 max-w-2xl">
-          3단 가격표와 협업·자문 문의 폼입니다.
+        <p className="terminal-copy mt-4 max-w-3xl text-sm md:text-base">
+          뉴스레터와 협업 제안을 위한 가격·문의 패널입니다.
         </p>
+      </section>
 
-        <section className="mb-24">
-          <h2 className="text-2xl font-semibold text-text-dark dark:text-text-title mb-10">
-            가격
-          </h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {tiers.map((tier) => (
-              <div
-                key={tier.name}
-                className={`p-8 rounded-2xl border ${
-                  tier.featured
-                    ? "border-accent-blue bg-accent-blue/5 dark:bg-accent-blue/10"
-                    : "border-border dark:border-border bg-surface-light dark:bg-surface/30"
-                }`}
-              >
-                {tier.featured && (
-                  <span className="text-xs font-medium text-accent-blue mb-4 block">
-                    인기
-                  </span>
-                )}
-                <h3 className="text-xl font-semibold text-text-dark dark:text-text-title mb-2">
-                  {tier.name}
-                </h3>
-                <p className="text-2xl font-bold text-accent-blue mb-6">
-                  ${tier.price}
-                </p>
-                <ul className="space-y-3">
-                  {tier.features.map((f) => (
-                    <li
-                      key={f}
-                      className="text-sm text-text-dark/80 dark:text-text/80 flex items-center gap-2"
-                    >
-                      <span className="text-accent-blue">✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      <section className="grid gap-4 md:grid-cols-3">
+        {tiers.map((tier) => (
+          <div
+            key={tier.name}
+            className={
+              tier.featured
+                ? "rounded-sm bg-accent-orange p-6 text-[#2c1700] shadow-terminal"
+                : "terminal-card p-6"
+            }
+          >
+            <div className={`terminal-label ${tier.featured ? "text-[#7a4100]" : ""}`}>
+              {tier.featured ? "Featured Tier" : "Access Tier"}
+            </div>
+            <h2
+              className={`mt-3 text-3xl font-black tracking-tight ${tier.featured ? "text-[#2c1700]" : "terminal-heading text-text-title"}`}
+            >
+              {tier.name}
+            </h2>
+            <p className={`mt-2 text-2xl font-semibold ${tier.featured ? "text-[#2c1700]" : "text-accent-orange"}`}>
+              ${tier.price}
+            </p>
+            <div className="mt-6 space-y-3">
+              {tier.features.map((feature) => (
+                <div
+                  key={feature}
+                  className={`rounded-sm px-3 py-3 text-sm ${tier.featured ? "bg-black/10 text-[#5c3200]" : "bg-white/5 text-text-dark"}`}
+                >
+                  {feature}
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        ))}
+      </section>
 
-        <section className="mb-16">
-          <div className="rounded-xl border border-border dark:border-border bg-surface-light/30 dark:bg-surface/20 h-24 flex items-center justify-center text-text-dark/50 dark:text-text/50 text-sm">
-            광고 슬롯 (레이아웃만)
-          </div>
-        </section>
-
-        <section id="contact">
-          <h2 className="text-2xl font-semibold text-text-dark dark:text-text-title mb-6">
-            문의
-          </h2>
-          <form className="max-w-xl space-y-6">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <section className="terminal-card p-6 md:p-8">
+          <div className="terminal-label mb-4">Custom Engagement</div>
+          <form className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-text-dark dark:text-text mb-2">
-                목적
-              </label>
+              <label className="terminal-label mb-2 block text-[0.66rem]">목적</label>
               <select
                 value={formPurpose}
                 onChange={(e) => setFormPurpose(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-border dark:border-border bg-surface-light dark:bg-surface/50 text-text-dark dark:text-text focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
+                className="terminal-select"
               >
                 <option value="">선택</option>
                 <option value="투자">투자</option>
@@ -115,7 +103,7 @@ export default function SubscribePage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-dark dark:text-text mb-2">
+              <label className="terminal-label mb-2 block text-[0.66rem]">
                 예산 (선택)
               </label>
               <input
@@ -123,41 +111,50 @@ export default function SubscribePage() {
                 value={formBudget}
                 onChange={(e) => setFormBudget(e.target.value)}
                 placeholder="예: $5K ~ $10K"
-                className="w-full px-4 py-3 rounded-lg border border-border dark:border-border bg-surface-light dark:bg-surface/50 text-text-dark dark:text-text placeholder:text-text-dark/50 dark:placeholder:text-text/50 focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
+                className="terminal-input"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-dark dark:text-text mb-2">
-                기간
-              </label>
+              <label className="terminal-label mb-2 block text-[0.66rem]">기간</label>
               <input
                 type="text"
                 value={formPeriod}
                 onChange={(e) => setFormPeriod(e.target.value)}
                 placeholder="예: 3개월, 1년"
-                className="w-full px-4 py-3 rounded-lg border border-border dark:border-border bg-surface-light dark:bg-surface/50 text-text-dark dark:text-text placeholder:text-text-dark/50 dark:placeholder:text-text/50 focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
+                className="terminal-input"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-dark dark:text-text mb-2">
-                목표
-              </label>
+              <label className="terminal-label mb-2 block text-[0.66rem]">목표</label>
               <textarea
                 value={formGoal}
                 onChange={(e) => setFormGoal(e.target.value)}
                 rows={4}
                 placeholder="달성하고 싶은 목표를 간단히 적어주세요."
-                className="w-full px-4 py-3 rounded-lg border border-border dark:border-border bg-surface-light dark:bg-surface/50 text-text-dark dark:text-text placeholder:text-text-dark/50 dark:placeholder:text-text/50 focus:outline-none focus:ring-2 focus:ring-accent-blue/50 resize-none"
+                className="terminal-textarea"
               />
             </div>
             <button
               type="submit"
-              className="px-6 py-3 rounded-lg bg-accent-blue text-white font-medium hover:bg-accent-blue/90 transition-colors"
+              className="terminal-primary-button font-label text-xs uppercase tracking-[0.22em]"
             >
               문의 보내기
             </button>
           </form>
         </section>
+
+        <aside className="grid gap-4">
+          <div className="terminal-card p-5">
+            <div className="terminal-label mb-3">Morning Alpha</div>
+            <p className="terminal-copy text-sm">
+              Daily intelligence, delivered before the bell. Includes fresh research, archive highlights, and active operating notes.
+            </p>
+          </div>
+          <div className="terminal-card p-5">
+            <div className="terminal-label mb-3">Ad Inventory</div>
+            <div className="h-24 rounded-sm border border-border bg-white/4" />
+          </div>
+        </aside>
       </div>
     </div>
   );

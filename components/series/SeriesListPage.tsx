@@ -5,9 +5,9 @@ import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { Series } from "@/lib/research/types";
 
 const levelKeyMap: Record<string, string> = {
-  "초급": "beginner",
-  "중급": "intermediate",
-  "고급": "advanced",
+  초급: "beginner",
+  중급: "intermediate",
+  고급: "advanced",
 };
 
 interface SeriesListPageProps {
@@ -22,62 +22,65 @@ export function SeriesListPage({
   translationPrefix,
 }: SeriesListPageProps) {
   const { t } = useTranslation();
-
-  const getTitle = (s: Series) => s.title;
-  const getDesc = (s: Series) => s.description ?? "";
-
   const prefix = translationPrefix;
 
   return (
-    <div className="py-16 md:py-24 bg-white">
-      <div className="max-w-content mx-auto px-6">
-        <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
+    <div className="terminal-container space-y-4">
+      <section className="terminal-card p-6 md:p-8">
+        <div className="terminal-label mb-3">Series Terminal</div>
+        <h1 className="terminal-title text-4xl text-text-title md:text-5xl">
           {t(`${prefix}.title`)}
         </h1>
-        <p className="text-slate-600 mb-10 max-w-2xl">{t(`${prefix}.desc`)}</p>
+        <p className="terminal-copy mt-4 max-w-3xl text-sm md:text-base">
+          {t(`${prefix}.desc`)}
+        </p>
+      </section>
 
-        {initialData.length === 0 ? (
-          <div className="py-16 text-center text-slate-500">
-            {t(`${prefix}.noSeries`)}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {initialData.map((series) => {
-              const levelKey = levelKeyMap[series.level] ?? "intermediate";
-              return (
-                <Link
-                  key={series.id}
-                  href={`${basePath}/${series.slug}`}
-                  className="group block rounded-xl border border-slate-200 bg-white p-6 hover:border-accent-orange/50 hover:shadow-md transition-all"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
-                      {t(`levels.${levelKey}`)}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {series.postCount ?? 0} {t(`${prefix}.posts`)}
-                    </span>
-                  </div>
+      {initialData.length === 0 ? (
+        <div className="terminal-card px-6 py-16 text-center text-text-dark">
+          {t(`${prefix}.noSeries`)}
+        </div>
+      ) : (
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {initialData.map((series) => {
+            const levelKey = levelKeyMap[series.level] ?? "intermediate";
 
-                  <h2 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-accent-orange transition-colors">
-                    {getTitle(series)}
-                  </h2>
-
-                  {getDesc(series) && (
-                    <p className="text-sm text-slate-600 line-clamp-3 mb-4">
-                      {getDesc(series)}
-                    </p>
-                  )}
-
-                  <span className="text-sm font-medium text-accent-orange group-hover:underline">
-                    {t(`${prefix}.viewSeries`)} →
+            return (
+              <Link
+                key={series.id}
+                href={`${basePath}/${series.slug}`}
+                className="terminal-card group block p-6 hover:-translate-y-1"
+              >
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                  <span className="terminal-badge terminal-badge-neutral">
+                    {t(`levels.${levelKey}`)}
                   </span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                  <span className="terminal-badge terminal-badge-blue">
+                    {series.postCount ?? 0} {t(`${prefix}.posts`)}
+                  </span>
+                </div>
+
+                <h2 className="terminal-heading text-2xl text-text-title group-hover:text-accent-orange">
+                  {series.title}
+                </h2>
+
+                {series.description && (
+                  <p className="terminal-copy mt-3 line-clamp-3 text-sm">
+                    {series.description}
+                  </p>
+                )}
+
+                <div className="mt-6 flex items-center justify-between">
+                  <span className="terminal-label text-[0.62rem] text-accent-orange">
+                    {t(`${prefix}.viewSeries`)}
+                  </span>
+                  <span className="terminal-number text-sm text-text-title">↗</span>
+                </div>
+              </Link>
+            );
+          })}
+        </section>
+      )}
     </div>
   );
 }

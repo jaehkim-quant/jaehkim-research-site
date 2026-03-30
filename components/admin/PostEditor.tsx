@@ -14,7 +14,7 @@ const PostEditorClient = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="border border-slate-300 rounded-lg bg-white p-4 text-sm text-slate-500">
+      <div className="terminal-card p-4 text-sm text-text-dark">
         Editor loading...
       </div>
     ),
@@ -24,4 +24,3 @@ const PostEditorClient = dynamic(
 export function PostEditor(props: PostEditorProps) {
   return <PostEditorClient {...props} />;
 }
-

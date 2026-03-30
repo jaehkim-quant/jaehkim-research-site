@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { SeriesListPage } from "@/components/series/SeriesListPage";
 import { serializeSeriesListItem } from "@/lib/research/serializers";
 
+export const dynamic = "force-dynamic";
+
 export default async function BookNotesPage() {
   const seriesList = await prisma.series.findMany({
     where: { published: true, type: "book-notes" },

@@ -72,11 +72,13 @@
 이미 준비된 코드:
 
 - `STORAGE_PROVIDER` / `EMAIL_PROVIDER` provider 추상화 도입 완료
-- 현재는 `s3`, `ses` 선택 시 미구현 오류로 fail-fast
+- `s3` 업로드 구현 완료
+- `next.config.js` standalone 출력 설정 완료
+- `Dockerfile` 추가 완료
 
 다음 구현 작업:
 
-- [ ] S3 실제 업로드 구현 추가
 - [ ] S3/CloudFront 환경변수 설정
+- [ ] EC2에 Docker 설치 및 앱 기동
+- [ ] RDS 연결 정보 설정
 - [ ] 스테이징에서 `STORAGE_PROVIDER=s3` 테스트
-

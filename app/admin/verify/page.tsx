@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 export default function AdminVerifyPage() {
   const router = useRouter();
@@ -29,8 +28,10 @@ export default function AdminVerifyPage() {
 
   if (status === "loading" || status === "authenticated") {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <p className="text-sm text-slate-500">Checking session...</p>
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <p className="terminal-label text-[0.68rem] text-text-dark">
+          Checking session...
+        </p>
       </div>
     );
   }
@@ -101,38 +102,38 @@ export default function AdminVerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="terminal-card p-8 md:p-10">
+          <div className="terminal-label mb-3">Verification Gate</div>
+          <h1 className="terminal-heading text-4xl text-text-title">
             Verify Code
           </h1>
-          <p className="text-sm text-slate-500 mb-6">
-            Enter the 6-digit code sent to your email
+          <p className="terminal-copy mt-4 text-sm">
+            Enter the 6-digit code sent to your email to unlock the operator terminal.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div
-              className="flex gap-2 justify-center"
-              onPaste={handlePaste}
-            >
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="flex justify-center gap-2" onPaste={handlePaste}>
               {code.map((digit, i) => (
                 <input
                   key={i}
-                  ref={(el) => { inputRefs.current[i] = el; }}
+                  ref={(el) => {
+                    inputRefs.current[i] = el;
+                  }}
                   type="text"
                   inputMode="numeric"
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="w-11 h-12 text-center text-lg font-semibold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="h-14 w-12 rounded-sm border border-border bg-white/4 text-center text-xl font-semibold text-text-title focus:outline-none focus:ring-0"
                 />
               ))}
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 text-center">
+              <p className="rounded-sm border border-[rgba(255,180,171,0.3)] bg-[rgba(255,180,171,0.08)] px-4 py-3 text-center text-sm text-[var(--terminal-danger)]">
                 {error}
               </p>
             )}
@@ -140,7 +141,7 @@ export default function AdminVerifyPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-orange-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="terminal-primary-button w-full justify-center font-label text-xs uppercase tracking-[0.2em] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Verifying..." : "Verify & Login"}
             </button>
@@ -148,7 +149,7 @@ export default function AdminVerifyPage() {
             <button
               type="button"
               onClick={() => router.push("/admin/login")}
-              className="w-full text-sm text-slate-500 hover:text-slate-700 text-center"
+              className="terminal-outline-button w-full justify-center text-sm"
             >
               Back to login
             </button>

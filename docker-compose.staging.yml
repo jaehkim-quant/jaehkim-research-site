@@ -1,0 +1,12 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jaehkim-research:staging
+    container_name: jaehkim-research-staging
+    restart: unless-stopped
+    env_file:
+      - .env.staging
+    ports:
+      - "3000:3000"

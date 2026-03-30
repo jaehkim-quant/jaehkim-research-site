@@ -1,9 +1,40 @@
 import type { Metadata } from "next";
+import { Inter, Public_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/useTranslation";
 import { LayoutShell } from "@/components/LayoutShell";
+import { resolveSiteUrl } from "@/lib/site";
+import { DEFAULT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jaehkim-research.vercel.app";
+const SITE_URL = resolveSiteUrl();
+const themeInitScript = `(() => {
+  const key = "${THEME_STORAGE_KEY}";
+  try {
+    const saved = window.localStorage.getItem(key);
+    const theme = saved === "light" || saved === "dark" ? saved : "${DEFAULT_THEME}";
+    document.documentElement.dataset.theme = theme;
+  } catch {
+    document.documentElement.dataset.theme = "${DEFAULT_THEME}";
+  }
+})();`;
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const publicSans = Public_Sans({
+  subsets: ["latin"],
+  variable: "--font-public-sans",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -67,23 +98,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html
+      lang="ko"
+      suppressHydrationWarning
+      data-theme={DEFAULT_THEME}
+      className={`${inter.variable} ${publicSans.variable} ${spaceGrotesk.variable}`}
+    >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        <meta name="color-scheme" content="dark light" />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
         />
       </head>
-      <body
-        className="font-sans antialiased bg-white text-slate-800"
-        style={{ fontFamily: "Pretendard, Inter, sans-serif" }}
-      >
+      <body style={{ fontFamily: "Pretendard, var(--font-inter), sans-serif" }}>
         <LanguageProvider>
           <LayoutShell>{children}</LayoutShell>
         </LanguageProvider>

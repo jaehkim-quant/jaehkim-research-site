@@ -1,3 +1,4 @@
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { put } from "@vercel/blob";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
@@ -22,6 +23,10 @@ export class StorageProviderError extends Error {
     super(message);
     this.name = "StorageProviderError";
   }
+}
+
+function trimTrailingSlash(value: string) {
+  return value.replace(/\/+$/, "");
 }
 
 export function resolveStorageProvider(
@@ -106,6 +111,34 @@ async function uploadToVercelBlob(
   };
 }
 
+export function buildUploadObjectKey(
+  filename: string,
+  now: Date = new Date()
+) {
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+
+  return `uploads/${year}/${month}/${filename}`;
+}
+
+export function resolveS3PublicBaseUrl(env: EnvMap = process.env) {
+  const explicitBaseUrl = env.CLOUDFRONT_URL || env.S3_PUBLIC_BASE_URL;
+  if (explicitBaseUrl) {
+    return trimTrailingSlash(explicitBaseUrl);
+  }
+
+  const bucket = env.S3_BUCKET_NAME;
+  const region = env.AWS_REGION;
+
+  if (!bucket || !region) {
+    throw new StorageProviderError(
+      "S3 public URL resolution requires either CLOUDFRONT_URL/S3_PUBLIC_BASE_URL or both S3_BUCKET_NAME and AWS_REGION."
+    );
+  }
+
+  return `https://${bucket}.s3.${region}.amazonaws.com`;
+}
+
 async function uploadToLocal(
   { file, filename }: UploadPublicFileInput,
   env: EnvMap
@@ -127,16 +160,37 @@ async function uploadToLocal(
 }
 
 async function uploadToS3(
-  _input: UploadPublicFileInput,
+  { file, filename }: UploadPublicFileInput,
   env: EnvMap
 ): Promise<UploadPublicFileResult> {
   const missing = ["AWS_REGION", "S3_BUCKET_NAME"].filter(
     (key) => !env[key]
   );
 
-  throw new StorageProviderError(
-    missing.length > 0
-      ? `STORAGE_PROVIDER=s3 is selected, but required env vars are missing: ${missing.join(", ")}.`
-      : "STORAGE_PROVIDER=s3 is selected, but S3 upload implementation is not yet installed. Add an AWS S3 provider (AWS SDK) before enabling it in production."
+  if (missing.length > 0) {
+    throw new StorageProviderError(
+      `STORAGE_PROVIDER=s3 is selected, but required env vars are missing: ${missing.join(", ")}.`
+    );
+  }
+
+  const client = new S3Client({
+    region: env.AWS_REGION,
+  });
+  const key = buildUploadObjectKey(filename);
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: env.S3_BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type || "application/octet-stream",
+      CacheControl: "public, max-age=31536000, immutable",
+    })
   );
+
+  return {
+    url: `${resolveS3PublicBaseUrl(env)}/${key}`,
+    provider: "s3",
+  };
 }

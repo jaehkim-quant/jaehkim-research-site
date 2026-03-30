@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { getPostTitle, getPostSummary, getPostTags } from "@/lib/research/postLocale";
+import {
+  getPostSummary,
+  getPostTags,
+  getPostTitle,
+} from "@/lib/research/postLocale";
 import type { Post } from "@/lib/research/types";
 
 const levelKeyMap: Record<string, string> = {
@@ -17,6 +21,16 @@ interface ResearchCardProps {
   showSeriesBadge?: boolean;
 }
 
+function formatUpdatedAt(updatedAt: string | undefined, label: string) {
+  if (!updatedAt) return null;
+  const normalized =
+    typeof updatedAt === "string" && updatedAt.includes("T")
+      ? new Date(updatedAt).toLocaleDateString()
+      : updatedAt;
+
+  return `${label}: ${normalized}`;
+}
+
 export function ResearchCard({
   post,
   variant = "default",
@@ -27,56 +41,57 @@ export function ResearchCard({
   const title = getPostTitle(post);
   const summary = getPostSummary(post);
   const tags = getPostTags(post);
+  const updatedLabel = formatUpdatedAt(post.updatedAt, t("common.updated"));
 
   return (
     <Link
       href={`/research/${post.slug}`}
-      className="block p-5 md:p-6 rounded-xl border border-slate-200 bg-white hover:border-accent-orange/50 hover:shadow-md transition-all"
+      className={`group terminal-card block h-full ${variant === "compact" ? "p-5" : "p-6"} hover:-translate-y-1`}
     >
-      <h3 className="text-base font-semibold text-slate-900 mb-2 line-clamp-1">
-        {title}
-      </h3>
-      <p className="text-sm text-slate-600 line-clamp-2 mb-3">
-        {summary}
-      </p>
-      <div className="flex flex-wrap gap-2 mb-3">
-        <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
-          {t(`levels.${levelKey}`)}
-        </span>
-        {showSeriesBadge && post.seriesId && (
-          <span className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 font-medium">
-            {t("research.seriesBadge")}
+      <div className="flex h-full flex-col">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="terminal-badge terminal-badge-neutral">
+            {t(`levels.${levelKey}`)}
           </span>
-        )}
-        {tags.slice(0, 3).map((tag) => (
-          <span
-            key={tag}
-            className="text-xs px-2 py-1 rounded bg-accent-orange/10 text-accent-orange font-medium"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-      <div className="flex items-center justify-between text-xs text-slate-500">
-        <div className="flex items-center gap-3">
-          {(post.viewCount ?? 0) > 0 && (
-            <span>{post.viewCount} {t("research.views")}</span>
+          {showSeriesBadge && post.seriesId && (
+            <span className="terminal-badge terminal-badge-blue">
+              {t("research.seriesBadge")}
+            </span>
           )}
-          {(post.likeCount ?? 0) > 0 && (
-            <span>♥ {post.likeCount}</span>
-          )}
-          {(post.commentCount ?? 0) > 0 && (
-            <span>{post.commentCount} {t("research.comments")}</span>
-          )}
+          {tags.slice(0, variant === "compact" ? 2 : 3).map((tag) => (
+            <span key={tag} className="terminal-badge terminal-badge-amber">
+              {tag}
+            </span>
+          ))}
         </div>
-        {variant === "default" && post.updatedAt && (
-          <span>
-            {t("common.updated")}:{" "}
-            {typeof post.updatedAt === "string" && post.updatedAt.includes("T")
-              ? new Date(post.updatedAt).toLocaleDateString()
-              : post.updatedAt}
-          </span>
-        )}
+
+        <h3
+          className={`terminal-heading mb-3 text-text-title transition-colors group-hover:text-accent-orange ${variant === "compact" ? "text-lg" : "text-xl"}`}
+        >
+          {title}
+        </h3>
+
+        <p
+          className={`terminal-copy ${variant === "compact" ? "line-clamp-2 text-sm" : "line-clamp-3 text-sm md:text-[0.95rem]"}`}
+        >
+          {summary}
+        </p>
+
+        <div className="mt-auto pt-5">
+          <div className="terminal-divider mb-4" />
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[0.72rem] text-text-dark">
+            <div className="terminal-label flex flex-wrap items-center gap-3 text-[0.62rem]">
+              <span>{post.viewCount ?? 0} {t("research.views")}</span>
+              <span>♥ {post.likeCount ?? 0}</span>
+              <span>{post.commentCount ?? 0} {t("research.comments")}</span>
+            </div>
+            {variant === "default" && updatedLabel && (
+              <span className="terminal-label text-[0.62rem] text-text-dark">
+                {updatedLabel}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     </Link>
   );
