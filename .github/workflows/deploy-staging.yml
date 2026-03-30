@@ -56,7 +56,7 @@ jobs:
           fi
 
       - name: Sync repository to EC2
-        uses: burnett01/rsync-deployments@7.0.2
+        uses: burnett01/rsync-deployments@8.1.0
         with:
           switches: >-
             -az --delete
