@@ -24,6 +24,7 @@ yarn-error.log*
 .idea
 .vscode
 .claude
+.agents
 CLAUDE.md
 *.swp
 *.swo

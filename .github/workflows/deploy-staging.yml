@@ -3,83 +3,53 @@ name: Deploy Staging
 on:
   workflow_dispatch:
 
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - staging
     environment: staging
-    env:
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
-      DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
-      NEXTAUTH_URL: http://localhost:3000
-      NEXT_PUBLIC_SITE_URL: http://localhost:3000
-      NEXTAUTH_SECRET: ci-secret
-      EMAIL_PROVIDER: noop
-      STORAGE_PROVIDER: local
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-      - name: Build app
-        run: npm run build
-
-      - name: Validate staging secrets
+      - name: Validate staging runtime
         env:
-          STAGING_HOST: ${{ secrets.STAGING_HOST }}
-          STAGING_PORT: ${{ secrets.STAGING_PORT }}
-          STAGING_USER: ${{ secrets.STAGING_USER }}
-          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
-          STAGING_PATH: ${{ secrets.STAGING_PATH }}
+          DEPLOY_PATH: /home/ubuntu/apps/jaehkim-research-site
         run: |
           missing=()
 
-          [ -n "$STAGING_HOST" ] || missing+=("STAGING_HOST")
-          [ -n "$STAGING_PORT" ] || missing+=("STAGING_PORT")
-          [ -n "$STAGING_USER" ] || missing+=("STAGING_USER")
-          [ -n "$STAGING_SSH_KEY" ] || missing+=("STAGING_SSH_KEY")
-          [ -n "$STAGING_PATH" ] || missing+=("STAGING_PATH")
+          command -v rsync >/dev/null 2>&1 || missing+=("rsync")
+          command -v docker >/dev/null 2>&1 || missing+=("docker")
+          [ -d "$DEPLOY_PATH" ] || missing+=("$DEPLOY_PATH")
 
           if [ "${#missing[@]}" -gt 0 ]; then
-            echo "Missing GitHub Actions secrets: ${missing[*]}"
+            echo "Missing self-hosted runner requirements: ${missing[*]}"
             exit 1
           fi
 
-      - name: Sync repository to EC2
-        uses: burnett01/rsync-deployments@v8
-        with:
-          switches: >-
-            -az --delete
-            --exclude=.git
-            --exclude=node_modules
-            --exclude=.next
-            --exclude=.env.local
-            --exclude=.env.staging
-            --exclude=.DS_Store
-          path: ./
-          remote_path: ${{ secrets.STAGING_PATH }}
-          remote_host: ${{ secrets.STAGING_HOST }}
-          remote_user: ${{ secrets.STAGING_USER }}
-          remote_key: ${{ secrets.STAGING_SSH_KEY }}
-          remote_port: ${{ secrets.STAGING_PORT }}
+      - name: Sync repository to staging directory
+        env:
+          DEPLOY_PATH: /home/ubuntu/apps/jaehkim-research-site
+        run: |
+          rsync -az --delete \
+            --exclude=.git \
+            --exclude=node_modules \
+            --exclude=.next \
+            --exclude=.env.local \
+            --exclude=.env.staging \
+            --exclude=.DS_Store \
+            ./ "$DEPLOY_PATH"/
 
-      - name: Deploy on EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          port: ${{ secrets.STAGING_PORT }}
-          script: |
-            cd ${{ secrets.STAGING_PATH }}
-            bash scripts/deploy-staging.sh
+      - name: Deploy on self-hosted runner
+        env:
+          DEPLOY_PATH: /home/ubuntu/apps/jaehkim-research-site
+        run: |
+          cd "$DEPLOY_PATH"
+          bash scripts/deploy-staging.sh
